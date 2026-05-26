@@ -1,61 +1,91 @@
 # Noema
 
-A note taking software inspired by Zettelkasten like Obsidian, or Trilliumnext but built in Rust.
+Noema is a note-taking application written in Rust.
 
-## Features
+It is inspired by knowledge management and Zettelkasten-oriented tools such as TriliumNext or Obsidian, while focusing on a native and lightweight approach.
 
-For now, it is a headless note taking software without any special capabilities.
+## Current Features
 
-## Use 
+At the moment, Noema is a minimal CLI-based note-taking application featuring:
 
-This software expect you to have an `EDITOR` env variable set to a texte editor like vim, nano, helix or other. By default it falls back to vi.
+- SQLite-based storage
+- Terminal editor integration through `$EDITOR`
+- Basic note CRUD operations
+- Local persistent database
 
-Once in your work folder you can call : 
+## Requirements
 
-```
+Noema expects the `EDITOR` environment variable to be set to a terminal editor such as:
+
+- `vim`
+- `nvim`
+- `nano`
+- `helix`
+
+If no editor is configured, Noema falls back to `vi`.
+
+## Usage
+
+Initialize the database in your working directory:
+
+```sh
 noema init
 ```
 
-To init the database file, every notes will be stored in it.
+This creates the local SQLite database used to store your notes.
 
-In your work folder you create a note using
+### Create a note
 
+```sh
+noema note create --title "My note"
 ```
-noema note create --title <TITLE>
-```
 
-And after saving and quitting your note is stored in the database. 
-To work on it after, you can just type.
+Your editor will open automatically.  
+Once the editor is closed, the note content is saved to the database.
 
-```
+### List notes
+
+```sh
 noema note list
 ```
-to retrieve the id of the note and 
 
+Displays the available notes and their IDs.
+
+### Read a note
+
+```sh
+noema note read <ID>
 ```
+
+Displays the content of a note.
+
+### Update a note
+
+```sh
 noema note update <ID>
 ```
 
-to write on it or : 
+Opens the note in your configured editor.
 
-```
-noema note read <ID>
-```
-To read it ( For now you can edit the note content, but it won't be saved )
+### Delete a note
 
-
-And if you ever want to remove you note
-```
+```sh
 noema note delete <ID>
 ```
 
-All of those commands are available under : 
+Deletes the specified note.
 
-```
+## Help
+
+```sh
 noema --help
 noema note --help
 ```
 
-## Current phase 
+## Current State
 
-This is still in alpha, there is a lot of improvement to do, feel free to open a PR if you have idea of patch. 
+Noema is currently in early alpha.
+
+The project is still experimental and missing many planned features and improvements.
+
+Contributions, issues, ideas, and patches are welcome.
