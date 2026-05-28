@@ -11,6 +11,8 @@ enum NoteCommand {
     Create {
         #[arg(short, long)]
         title: String,
+        #[arg(short, long)]
+        content: Option<String>,
     },
     List,
     Read {
@@ -58,9 +60,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             sqlite::init()?;
         }
         Command::Note { command } => match command {
-            NoteCommand::Create { title } => {
-                let content = open_editor("").expect("Failed to open an editor");
-                sqlite::insert(title, content)?;
+            NoteCommand::Create { title, content } => {
+                let editor_content = open_editor(&content.unwrap_or_default())?;
+                sqlite::insert(title, editor_content)?;
             }
             NoteCommand::List => {
                 sqlite::list()?;
@@ -71,11 +73,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
             NoteCommand::Update { id } => {
                 let old_content = sqlite::get_content(&id)?;
-                let new_content = open_editor(&old_content).expect("Failed to open an editor");
-                let _ = sqlite::update(&new_content, id);
+                let new_content = open_editor(&old_content)?;
+                sqlite::update(&new_content, id)?;
             }
             NoteCommand::Delete { id } => {
-                sqlite::drop(id)?;
+                sqlite::delete(id)?;
             }
         },
     }
