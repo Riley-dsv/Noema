@@ -18,7 +18,7 @@ pub fn init() -> Result<()> {
     let conn = connect()?;
 
     conn.execute(
-        "CREATE TABLE notes (
+        "CREATE TABLE IF NOT EXISTS notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       content TEXT,
@@ -59,14 +59,18 @@ pub fn list() -> Result<()> {
         })
     })?;
 
-    for note in note_iter {
-        println!("Found note: {:?}", note?)
+    for note_result in note_iter {
+        let note = note_result?;
+        println!(
+            "Found note: {} | {} | {}",
+            note.id, note.title, note.updated_at
+        )
     }
 
     Ok(())
 }
 
-pub fn drop(id: String) -> Result<()> {
+pub fn delete(id: String) -> Result<()> {
     let conn = connect()?;
 
     conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
