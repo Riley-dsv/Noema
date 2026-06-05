@@ -85,7 +85,11 @@ pub fn list(db_path: Option<PathBuf>) -> Result<()> {
 pub fn delete(db_path: Option<PathBuf>, id: String) -> Result<()> {
     let conn = connect(db_path)?;
 
-    conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
+    let deleted = conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
+
+    if deleted == 0 {
+        print!("No note found with id {id}");
+    }
 
     Ok(())
 }
