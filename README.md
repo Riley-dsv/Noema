@@ -24,15 +24,48 @@ Noema expects the `EDITOR` environment variable to be set to a terminal editor s
 
 If no editor is configured, Noema falls back to `vi`.
 
+## Database Location
+
+By default, Noema stores its database using platform conventions:
+
+### Linux / BSD
+
+```
+XDG_DATA_DIRS/noema/noema.db
+```
+or if `XDG_DATA_DIRS` does not exists
+
+```
+~/.local/share/noema/noema.db
+```
+
+### Windows
+
+```
+%APPDATA%\Noema\noema.db
+```
+
+### macOS
+
+```
+~/Library/Application Support/Noema/noema.db
+```
+
+You can override the default database location using:
+
+```
+noema note --db
+```
+
 ## Usage
 
 Initialize the database in your working directory:
 
 ```sh
-noema init
+noema init [path]
 ```
 
-This creates the local SQLite database used to store your notes.
+This creates the local SQLite database used to store your notes, if path is not specified, it fallsback to the default location.
 
 ### Create a note
 
@@ -40,7 +73,12 @@ This creates the local SQLite database used to store your notes.
 noema note create --title "My note"
 ```
 
-Your editor will open automatically.  
+You can also provide initial content directly from the command line:
+
+```
+noema not create --title "My note" --content "# Initial content"
+```
+
 Once the editor is closed, the note content is saved to the database.
 
 ### List notes
