@@ -141,7 +141,7 @@ pub fn update_title(db_path: Option<PathBuf>, id: &str, title: String) -> Result
     let now = chrono::offset::Local::now().to_rfc3339();
 
     conn.execute(
-        "UPDATE notes SET title=?1 updated_at=?2 WHERE id=?3",
+        "UPDATE notes SET title=?1, updated_at=?2 WHERE id=?3",
         params![title, now, id],
     )?;
 
