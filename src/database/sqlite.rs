@@ -1,8 +1,20 @@
+use std::path::PathBuf;
+
 use chrono;
 use rusqlite::{Connection, Result, params};
 
-fn connect() -> Result<Connection> {
-    Connection::open("noema.db")
+use crate::database::path;
+
+fn connect(db_path: Option<PathBuf>) -> Result<Connection> {
+    let path = db_path
+        .map(PathBuf::from)
+        .unwrap_or_else(path::default_database_path);
+
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).expect("failed to create database directory");
+    }
+
+    Connection::open(path)
 }
 
 #[derive(Debug)]
@@ -14,8 +26,8 @@ struct Note {
     updated_at: String,
 }
 
-pub fn init() -> Result<()> {
-    let conn = connect()?;
+pub fn init(db_path: Option<PathBuf>) -> Result<()> {
+    let conn = connect(db_path)?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS notes (
@@ -31,8 +43,8 @@ pub fn init() -> Result<()> {
     Ok(())
 }
 
-pub fn insert(note_title: String, note_content: String) -> Result<()> {
-    let conn = connect()?;
+pub fn insert(db_path: Option<PathBuf>, note_title: String, note_content: String) -> Result<()> {
+    let conn = connect(db_path)?;
     let now = chrono::offset::Local::now().to_rfc3339();
 
     conn.execute(
@@ -43,8 +55,8 @@ pub fn insert(note_title: String, note_content: String) -> Result<()> {
     Ok(())
 }
 
-pub fn list() -> Result<()> {
-    let conn = connect()?;
+pub fn list(db_path: Option<PathBuf>) -> Result<()> {
+    let conn = connect(db_path)?;
     let mut statement = conn.prepare(
         "SELECT id, title, content, created_at, updated_at FROM notes ORDER BY updated_at DESC",
     )?;
@@ -70,16 +82,16 @@ pub fn list() -> Result<()> {
     Ok(())
 }
 
-pub fn delete(id: String) -> Result<()> {
-    let conn = connect()?;
+pub fn delete(db_path: Option<PathBuf>, id: String) -> Result<()> {
+    let conn = connect(db_path)?;
 
     conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
 
     Ok(())
 }
 
-pub fn get_content(id: &str) -> Result<String> {
-    let conn = connect()?;
+pub fn get_content(db_path: Option<PathBuf>, id: &str) -> Result<String> {
+    let conn = connect(db_path)?;
     let content = conn.query_row(
         "SELECT content FROM notes WHERE id=?1",
         params![id],
@@ -89,8 +101,8 @@ pub fn get_content(id: &str) -> Result<String> {
     Ok(content?)
 }
 
-pub fn select(id: String) -> Result<()> {
-    let conn = connect()?;
+pub fn select(db_path: Option<PathBuf>, id: String) -> Result<()> {
+    let conn = connect(db_path)?;
     let note = conn.query_row(
         "SELECT id, title, content, created_at, updated_at FROM notes WHERE id=?1",
         params![id],
@@ -110,8 +122,8 @@ pub fn select(id: String) -> Result<()> {
     Ok(())
 }
 
-pub fn update(new_content: &str, id: String) -> Result<()> {
-    let conn = connect()?;
+pub fn update(db_path: Option<PathBuf>, new_content: &str, id: String) -> Result<()> {
+    let conn = connect(db_path)?;
     let now = chrono::offset::Local::now().to_rfc3339();
 
     println!("{id}");
@@ -119,6 +131,18 @@ pub fn update(new_content: &str, id: String) -> Result<()> {
     conn.execute(
         "UPDATE notes SET content=?1, updated_at=?2 WHERE id=?3",
         params![new_content, now, id],
+    )?;
+
+    Ok(())
+}
+
+pub fn update_title(db_path: Option<PathBuf>, id: &str, title: String) -> Result<()> {
+    let conn = connect(db_path)?;
+    let now = chrono::offset::Local::now().to_rfc3339();
+
+    conn.execute(
+        "UPDATE notes SET title=?1 updated_at=?2 WHERE id=?3",
+        params![title, now, id],
     )?;
 
     Ok(())
