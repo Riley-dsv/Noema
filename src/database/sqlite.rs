@@ -85,7 +85,11 @@ pub fn list(db_path: Option<PathBuf>) -> Result<()> {
 pub fn delete(db_path: Option<PathBuf>, id: String) -> Result<()> {
     let conn = connect(db_path)?;
 
-    conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
+    let deleted = conn.execute("DELETE FROM notes WHERE id=?1", params![id])?;
+
+    if deleted == 0 {
+        print!("No note found with id {id}");
+    }
 
     Ok(())
 }
@@ -141,7 +145,7 @@ pub fn update_title(db_path: Option<PathBuf>, id: &str, title: String) -> Result
     let now = chrono::offset::Local::now().to_rfc3339();
 
     conn.execute(
-        "UPDATE notes SET title=?1 updated_at=?2 WHERE id=?3",
+        "UPDATE notes SET title=?1, updated_at=?2 WHERE id=?3",
         params![title, now, id],
     )?;
 
