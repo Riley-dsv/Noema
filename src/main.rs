@@ -78,8 +78,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 println!("{content}");
             }
             NoteCommand::Update { id, title } => {
-                if Option::is_some(&title) {
-                    sqlite::update_title(db.clone(), &id, title.expect("Expected a new title"))?;
+                if let Some(title) = title {
+                    sqlite::update_title(db.clone(), &id, title)?;
                 } else {
                     let old_content = sqlite::get_content(db.clone(), &id)?;
                     let new_content = open_editor(&old_content)?;
