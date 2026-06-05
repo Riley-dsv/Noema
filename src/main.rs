@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use std::env;
+use std::{env, io, path::PathBuf};
 
 use crate::{database::sqlite, editor::open_editor};
 
@@ -20,6 +20,8 @@ enum NoteCommand {
     },
     Update {
         id: String,
+        #[arg(short, long)]
+        title: Option<String>,
     },
     Delete {
         id: String,
@@ -28,8 +30,12 @@ enum NoteCommand {
 
 #[derive(Subcommand)]
 enum Command {
-    Init,
+    Init {
+        path: Option<PathBuf>,
+    },
     Note {
+        #[arg(long)]
+        db: Option<PathBuf>,
         #[command(subcommand)]
         command: NoteCommand,
     },
@@ -56,28 +62,42 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Init => {
-            sqlite::init()?;
+        Command::Init { path } => {
+            sqlite::init(path)?;
         }
-        Command::Note { command } => match command {
+        Command::Note { db, command } => match command {
             NoteCommand::Create { title, content } => {
                 let editor_content = open_editor(&content.unwrap_or_default())?;
-                sqlite::insert(title, editor_content)?;
+                sqlite::insert(db, title, editor_content)?;
             }
             NoteCommand::List => {
-                sqlite::list()?;
+                sqlite::list(db)?;
             }
             NoteCommand::Read { id } => {
-                let content = sqlite::get_content(&id)?;
+                let content = sqlite::get_content(db, &id)?;
                 println!("{content}");
             }
-            NoteCommand::Update { id } => {
-                let old_content = sqlite::get_content(&id)?;
-                let new_content = open_editor(&old_content)?;
-                sqlite::update(&new_content, id)?;
+            NoteCommand::Update { id, title } => {
+                if Option::is_some(&title) {
+                    sqlite::update_title(db.clone(), &id, title.expect("Expected a new title"))?;
+                } else {
+                    let old_content = sqlite::get_content(db.clone(), &id)?;
+                    let new_content = open_editor(&old_content)?;
+                    sqlite::update(db, &new_content, id)?;
+                }
             }
             NoteCommand::Delete { id } => {
-                sqlite::delete(id)?;
+                print!("Are you sure you want to delete note: {} (Y/N) > ", id);
+
+                let mut input = String::new();
+
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Unable to read stdin");
+
+                if input.trim().to_lowercase() == "y" {
+                    sqlite::delete(db, id)?;
+                }
             }
         },
     }
