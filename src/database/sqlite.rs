@@ -18,12 +18,12 @@ fn connect(db_path: Option<PathBuf>) -> Result<Connection> {
 }
 
 #[derive(Debug)]
-struct Note {
-    id: i32,
-    title: String,
-    content: String,
-    created_at: String,
-    updated_at: String,
+pub struct Note {
+    pub id: i32,
+    pub title: String,
+    pub content: String,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 pub fn init(db_path: Option<PathBuf>) -> Result<()> {
@@ -105,7 +105,7 @@ pub fn get_content(db_path: Option<PathBuf>, id: &str) -> Result<String> {
     Ok(content?)
 }
 
-pub fn select(db_path: Option<PathBuf>, id: String) -> Result<()> {
+pub fn select(db_path: Option<PathBuf>, id: String) -> Result<Note> {
     let conn = connect(db_path)?;
     let note = conn.query_row(
         "SELECT id, title, content, created_at, updated_at FROM notes WHERE id=?1",
@@ -121,9 +121,7 @@ pub fn select(db_path: Option<PathBuf>, id: String) -> Result<()> {
         },
     )?;
 
-    println!("{note:#?}");
-
-    Ok(())
+    Ok(note)
 }
 
 pub fn update(db_path: Option<PathBuf>, new_content: &str, id: String) -> Result<()> {
