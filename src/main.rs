@@ -14,6 +14,9 @@ enum NoteCommand {
         #[arg(short, long)]
         content: Option<String>,
     },
+    Info {
+        id: String,
+    },
     List,
     Read {
         id: String,
@@ -76,6 +79,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             NoteCommand::Read { id } => {
                 let content = sqlite::get_content(db, &id)?;
                 println!("{content}");
+            }
+            NoteCommand::Info { id } => {
+                let note = sqlite::select(db.clone(), id.clone())?;
+                let content_size = String::from(sqlite::get_content(db, &id)?).len();
+                println!(
+                    "ID: {}\nTitle: {}\nCreated At: {}\nLast Updated: {}\nSize: {}Bytes",
+                    &id, note.title, note.created_at, note.updated_at, content_size
+                );
             }
             NoteCommand::Update { id, title } => {
                 if let Some(title) = title {
