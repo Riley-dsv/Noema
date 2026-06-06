@@ -105,6 +105,14 @@ noema note update <ID>
 
 Opens the note in your configured editor.
 
+### Info about a note
+
+```sh
+noema note info <ID>
+```
+
+Return general information about a note, such as title, last update, estimated size...
+
 ### Delete a note
 
 ```sh
