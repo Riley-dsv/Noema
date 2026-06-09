@@ -23,6 +23,11 @@ impl SQLStore {
         Ok(Self { connection })
     }
 
+    pub fn open_in_memory() -> Result<Self> {
+        let connection = Connection::open_in_memory()?;
+        Ok(Self { connection })
+    }
+
     pub fn init(&self) -> Result<()> {
         self.connection.execute(
             "CREATE TABLE IF NOT EXISTS notes (
