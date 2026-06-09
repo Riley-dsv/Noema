@@ -1,10 +1,8 @@
 use std::{io, path::PathBuf};
 
-use rusqlite::Result;
+use crate::{database::sqlite, error::NoemaResult};
 
-use crate::database::sqlite;
-
-pub fn delete_note(db: Option<PathBuf>, id: &str) -> Result<()> {
+pub fn delete_note(db: Option<PathBuf>, id: &str) -> NoemaResult {
     print!("Are you sure you want to delete note: {} (Y/N) > ", id);
 
     let mut input = String::new();

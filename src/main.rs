@@ -67,7 +67,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Command::Init { path } => commands::init::init_database(path)?,
         Command::Note { db, command } => match command {
-            NoteCommand::Create { title, content } => commands::create::create_note(db, title, content)?,
+            NoteCommand::Create { title, content } => {
+                commands::create::create_note(db, title, content)?
+            }
             NoteCommand::List => commands::list::list_notes(db)?,
             NoteCommand::Read { id } => commands::read::read_note(db, &id)?,
             NoteCommand::Info { id } => commands::info::note_info(db, &id)?,

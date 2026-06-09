@@ -1,10 +1,8 @@
 use std::path::PathBuf;
 
-use rusqlite::Result;
+use crate::{database::sqlite, error::NoemaResult};
 
-use crate::database::sqlite;
-
-pub fn init_database(path: Option<PathBuf>) -> Result<()> {
+pub fn init_database(path: Option<PathBuf>) -> NoemaResult {
     sqlite::init(path)?;
     Ok(())
 }
