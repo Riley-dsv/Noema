@@ -38,7 +38,7 @@ impl SQLStore {
         Ok(())
     }
 
-    pub fn insert_note(&self, note_title: &str, note_content: &str) -> Result<()> {
+    pub fn insert_note(&self, note_title: &str, note_content: &str) -> Result<String> {
         let id = new_note_id();
         let now = chrono::offset::Local::now().to_rfc3339();
 
@@ -47,7 +47,7 @@ impl SQLStore {
             params![id, note_title, note_content, now, now],
         )?;
 
-        Ok(())
+        Ok(id)
     }
 
     pub fn list_notes(&self) -> Result<Vec<Note>> {
