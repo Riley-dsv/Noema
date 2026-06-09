@@ -38,7 +38,7 @@ impl SQLStore {
         Ok(())
     }
 
-    pub fn insert_note(&self, note_title: &str, note_content: &str) -> Result<()> {
+    pub fn insert_note(&self, note_title: &str, note_content: &str) -> Result<String> {
         let id = new_note_id();
         let now = chrono::offset::Local::now().to_rfc3339();
 
@@ -47,7 +47,7 @@ impl SQLStore {
             params![id, note_title, note_content, now, now],
         )?;
 
-        Ok(())
+        Ok(id)
     }
 
     pub fn list_notes(&self) -> Result<Vec<Note>> {
@@ -61,9 +61,9 @@ impl SQLStore {
     }
 
     pub fn delete_note(&self, id: &str) -> Result<usize> {
-        let deleted = self
-            .connection
-            .execute("DELETE FROM notes WHERE id=?1", params![id])?;
+        let mut statement = self.connection.prepare("DELETE FROM notes WHERE id=?1")?;
+
+        let deleted = statement.execute(params![id])?;
 
         if deleted == 0 {
             println!("No note found with id {id}");

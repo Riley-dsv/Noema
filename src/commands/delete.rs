@@ -13,7 +13,8 @@ pub fn delete_note(store: &SQLStore, id: &str) -> NoemaResult {
         .expect("Unable to read stdin");
 
     if input.trim().eq_ignore_ascii_case("y") {
-        store.delete_note(id)?;
+        let deleted = store.delete_note(id)?;
+        println!("Deleted {} Note(s)", deleted);
     }
 
     Ok(())
