@@ -4,7 +4,7 @@ use std::{env, path::PathBuf};
 mod commands;
 mod database;
 mod editor;
-mod errors;
+mod error;
 
 #[derive(Subcommand)]
 enum NoteCommand {
