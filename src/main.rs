@@ -1,10 +1,13 @@
 use clap::{Parser, Subcommand};
 use std::{env, path::PathBuf};
 
+use crate::database::sqlite::SQLStore;
+
 mod commands;
 mod database;
 mod editor;
 mod error;
+mod path;
 
 #[derive(Subcommand)]
 enum NoteCommand {
