@@ -408,6 +408,7 @@ dependencies = [
  "clap",
  "rusqlite",
  "tempfile",
+ "thiserror",
 ]
 
 [[package]]

@@ -1,10 +1,8 @@
 use std::path::PathBuf;
 
-use rusqlite::Result;
+use crate::{database::sqlite, error::NoemaResult};
 
-use crate::database::sqlite;
-
-pub fn list_notes(db: Option<PathBuf>) -> Result<()> {
+pub fn list_notes(db: Option<PathBuf>) -> NoemaResult {
     sqlite::list(db)?;
     Ok(())
 }

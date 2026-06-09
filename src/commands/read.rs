@@ -1,10 +1,8 @@
 use std::path::PathBuf;
 
-use rusqlite::Result;
+use crate::{database::sqlite, error::NoemaResult};
 
-use crate::database::sqlite;
-
-pub fn read_note(db: Option<PathBuf>, id: &str) -> Result<()> {
+pub fn read_note(db: Option<PathBuf>, id: &str) -> NoemaResult {
     let content = sqlite::get_content(db, &id)?;
     println!("{content}");
 
