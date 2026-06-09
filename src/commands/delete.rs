@@ -1,9 +1,8 @@
-use std::{io, path::PathBuf};
+use crate::{database::sqlite::SQLStore, error::NoemaResult};
+use std::io;
 
-use crate::{database::sqlite, error::NoemaResult};
-
-pub fn delete_note(db: Option<PathBuf>, id: &str) -> NoemaResult {
-    print!("Are you sure you want to delete note: {} (Y/N) > ", id);
+pub fn delete_note(store: &SQLStore, id: &str) -> NoemaResult {
+    print!("Are you sure you want to delete note: {} (Y/N) > ", &id);
 
     let mut input = String::new();
 
@@ -12,7 +11,7 @@ pub fn delete_note(db: Option<PathBuf>, id: &str) -> NoemaResult {
         .expect("Unable to read stdin");
 
     if input.trim().to_lowercase() == "y" {
-        sqlite::delete(db, id.to_string())?;
+        store.delete_note(&id)?;
     }
 
     Ok(())

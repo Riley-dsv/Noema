@@ -1,9 +1,7 @@
-use std::path::PathBuf;
+use crate::{database::sqlite::SQLStore, error::NoemaResult};
 
-use crate::{database::sqlite, error::NoemaResult};
-
-pub fn read_note(db: Option<PathBuf>, id: &str) -> NoemaResult {
-    let content = sqlite::get_content(db, &id)?;
+pub fn read_note(store: &SQLStore, id: &str) -> NoemaResult {
+    let content = store.get_content(&id)?;
     println!("{content}");
 
     Ok(())
