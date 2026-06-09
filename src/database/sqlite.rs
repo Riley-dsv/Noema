@@ -61,9 +61,9 @@ impl SQLStore {
     }
 
     pub fn delete_note(&self, id: &str) -> Result<usize> {
-        let deleted = self
-            .connection
-            .execute("DELETE FROM notes WHERE id=?1", params![id])?;
+        let mut statement = self.connection.prepare("DELETE FROM notes WHERE id=?1")?;
+
+        let deleted = statement.execute(params![id])?;
 
         if deleted == 0 {
             println!("No note found with id {id}");
