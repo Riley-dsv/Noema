@@ -66,26 +66,26 @@ impl SQLStore {
             .execute("DELETE FROM notes WHERE id=?1", params![id])?;
 
         if deleted == 0 {
-            print!("No note found with id {id}");
+            println!("No note found with id {id}");
         }
 
         Ok(deleted)
     }
 
     pub fn get_content(&self, id: &str) -> Result<String> {
-        let note = self.connection.query_row(
+        let content = self.connection.query_row(
             "SELECT content FROM notes WHERE id=?1",
-            params![id],
-            note_from_row,
-        );
+            params![&id],
+            |note| note.get("content"),
+        )?;
 
-        Ok(note.unwrap().content)
+        Ok(content)
     }
 
     pub fn get_note(&self, id: &str) -> Result<Note> {
         let note = self.connection.query_row(
             "SELECT id, title, content, created_at, updated_at FROM notes WHERE id=?1",
-            params![id],
+            params![&id],
             note_from_row,
         )?;
 
