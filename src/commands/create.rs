@@ -1,9 +1,7 @@
-use std::path::PathBuf;
+use crate::{database::sqlite::SQLStore, editor::open_editor, error::NoemaResult};
 
-use crate::{database::sqlite, editor::open_editor, error::NoemaResult};
-
-pub fn create_note(db: Option<PathBuf>, title: String, content: Option<String>) -> NoemaResult {
+pub fn create_note(store: &SQLStore, title: &str, content: Option<&str>) -> NoemaResult {
     let editor_content = open_editor(&content.unwrap_or_default())?;
-    sqlite::insert(db, title, editor_content)?;
+    store.insert_note(&title, &editor_content)?;
     Ok(())
 }
