@@ -12,6 +12,7 @@ At the moment, Noema is a minimal CLI-based note-taking application featuring:
 - Terminal editor integration through `$EDITOR`
 - Basic note CRUD operations
 - Local persistent database
+- UUID-based note identifiers
 
 ## Requirements
 
@@ -105,13 +106,26 @@ noema note update <ID>
 
 Opens the note in your configured editor.
 
+### Search notes
+
+```sh
+notema note search <KEYWORD>
+```
+
+Search both titles and note contents for a keyword.
+
 ### Info about a note
 
 ```sh
 noema note info <ID>
 ```
 
-Return general information about a note, such as title, last update, estimated size...
+Display note metadata : 
+
+* id
+* title
+* creation date
+* update date
 
 ### Delete a note
 
