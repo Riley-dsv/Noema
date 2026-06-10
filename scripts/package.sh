@@ -1,6 +1,6 @@
 cargo build --release
 
-VERSION="v0.0.4-alpha"
+VERSION="v0.0.5-alpha"
 TARGET="x86_64-linux"
 ARCHIVE="noema-${VERSION}-${TARGET}.tar.gz"
 
