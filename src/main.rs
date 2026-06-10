@@ -11,6 +11,9 @@ mod path;
 
 #[derive(Subcommand)]
 enum NoteCommand {
+    Search {
+        keyword: String,
+    },
     Create {
         #[arg(short, long)]
         title: String,
@@ -71,6 +74,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Command::Init => store.init()?,
         Command::Note { command } => match command {
+            NoteCommand::Search { keyword } => commands::search::search_in_notes(&store, &keyword)?,
             NoteCommand::Create { title, content } => {
                 commands::create::create_note(&store, &title, content.as_deref())?
             }
