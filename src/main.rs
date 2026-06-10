@@ -66,6 +66,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let db_path = cli.path.unwrap_or_else(path::default_database_path);
     let store = SQLStore::open(db_path)?;
+    store.init()?;
 
     match cli.command {
         Command::Init => store.init()?,

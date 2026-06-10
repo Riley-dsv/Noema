@@ -4,6 +4,8 @@ use chrono;
 use rusqlite::{Connection, Result, Row, params};
 use uuid::Uuid;
 
+use crate::database::migration::MIGRATIONS;
+
 #[derive(Debug)]
 pub struct Note {
     pub id: String,
@@ -29,16 +31,32 @@ impl SQLStore {
     }
 
     pub fn init(&self) -> Result<()> {
+        self.migrate()?;
+        Ok(())
+    }
+
+    pub fn migrate(&self) -> Result<()> {
         self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS notes (
-              id TEXT PRIMARY KEY,
-              title TEXT NOT NULL,
-              content TEXT,
-              created_at TEXT,
-              updated_at TEXT
+            "CREATE TABLE IF NOT EXISTS schema_migrations (
+              version INTEGER PRIMARY KEY,
+              applied_at TEXT NOT NULL
             )",
-            (),
+            [],
         )?;
+
+        let applied = self.applied_migration()?;
+        let now = chrono::offset::Local::now().to_rfc3339();
+
+        for migration in MIGRATIONS {
+            if !applied.contains(&migration.version) {
+                self.connection.execute_batch(migration.sql)?;
+
+                self.connection.execute(
+                    "INSERT INTO schema_migrations (version, applied_at) VALUES (?1, ?2)",
+                    params![migration.version, now],
+                )?;
+            }
+        }
 
         Ok(())
     }
@@ -116,6 +134,18 @@ impl SQLStore {
         )?;
 
         Ok(())
+    }
+
+    fn applied_migration(&self) -> Result<Vec<i32>> {
+        let mut statement = self
+            .connection
+            .prepare("SELECT version FROM schema_migrations ORDER BY version ASC")?;
+
+        let versions = statement
+            .query_map([], |row| row.get(0))?
+            .collect::<Result<Vec<i32>, rusqlite::Error>>()?;
+
+        Ok(versions)
     }
 }
 
