@@ -4,7 +4,7 @@ use chrono;
 use rusqlite::{Connection, Result, Row, params};
 use uuid::Uuid;
 
-use crate::database::migration::MIGRATIONS;
+use crate::database::migration::{CURRENT_MIGRATION_VERSION, INIT_SCHEMA, MIGRATIONS};
 
 #[derive(Debug)]
 pub struct Note {
