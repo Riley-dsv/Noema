@@ -40,30 +40,27 @@ impl SQLStore {
     }
 
     pub fn init(&self) -> Result<()> {
-        self.migrate()?;
+        self.connection.execute_batch(INIT_SCHEMA)?;
         Ok(())
     }
 
     pub fn migrate(&self) -> Result<()> {
-        self.connection.execute(
-            "CREATE TABLE IF NOT EXISTS schema_migrations (
-              version INTEGER PRIMARY KEY,
-              applied_at TEXT NOT NULL
-            )",
-            [],
-        )?;
+        if self.table_exists("notes")? {
+            let id_type = self.get_id_field_type();
+            if matches!(id_type, Ok(Some(field_type)) if field_type == "INTEGER") {
+                self.normalize_notes_integer_id_to_text()?;
+            }
+        }
 
         let applied = self.applied_migration()?;
-        let now = chrono::offset::Local::now().to_rfc3339();
+        let current_version = applied.last().copied().unwrap_or(0);
 
-        for migration in MIGRATIONS {
-            if !applied.contains(&migration.version) {
-                self.connection.execute_batch(migration.sql)?;
-
-                self.connection.execute(
-                    "INSERT INTO schema_migrations (version, applied_at) VALUES (?1, ?2)",
-                    params![migration.version, now],
-                )?;
+        if current_version < CURRENT_MIGRATION_VERSION {
+            for migration in MIGRATIONS {
+                if migration.version > current_version {
+                    self.connection.execute_batch(migration.sql)?;
+                    self.update_migration_count(&migration.version)?;
+                }
             }
         }
 
