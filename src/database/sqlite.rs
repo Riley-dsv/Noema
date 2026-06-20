@@ -165,6 +165,77 @@ impl SQLStore {
 
         Ok(versions)
     }
+
+    fn normalize_notes_integer_id_to_text(&self) -> Result<()> {
+        self.connection.execute_batch(
+            "
+          PRAGMA foreign_keys = OFF;
+          BEGIN TRANSACTION;
+
+          ALTER TABLE notes RENAME TO notes_old;
+
+          CREATE TABLE notes (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT,
+            created_at TEXT,
+            updated_at TEXT
+          );
+
+          INSERT INTO notes (id, title, content, created_at, updated_at)
+          SELECT CAST(id as TEXT), title, content, created_at, updated_at
+          FROM notes_old;
+
+          DROP TABLE notes_old;
+
+          COMMIT;
+
+          PRAGMA foreign_keys = ON;
+          ",
+        )?;
+
+        Ok(())
+    }
+
+    fn get_id_field_type(&self) -> Result<Option<String>> {
+        let mut statement = self.connection.prepare("PRAGMA table_info(notes)")?;
+
+        let rows = statement.query_map([], |row| {
+            Ok((row.get::<_, String>(1)?, row.get::<_, String>(2)?))
+        })?;
+
+        for row in rows {
+            let (name, rtype) = row?;
+            if name == "id" {
+                return Ok(Some(rtype));
+            }
+        }
+
+        Ok(None)
+    }
+
+    fn table_exists(&self, table_name: &str) -> Result<bool> {
+        self.connection.query_row(
+            "SELECT EXISTS (
+              SELECT 1
+              FROM sqlite_master
+              WHERE type = 'table'
+                AND name = ?1
+          );",
+            params![table_name],
+            |row| row.get(0),
+        )
+    }
+
+    fn update_migration_count(&self, migration_version: &i32) -> Result<()> {
+        let now = chrono::offset::Local::now().to_rfc3339();
+        self.connection.execute(
+            "INSERT INTO schema_migrations (version, applied_at) VALUES (?1, ?2)",
+            params![migration_version, now],
+        )?;
+
+        Ok(())
+    }
 }
 
 fn connect(path: PathBuf) -> Result<Connection> {
