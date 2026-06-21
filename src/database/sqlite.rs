@@ -161,6 +161,15 @@ impl SQLStore {
         Ok(())
     }
 
+    pub fn update_note_tags(&self, note_id: &str, tag_id: &i32) -> Result<()> {
+        self.connection.execute(
+            "INSERT OR IGNORE INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
+            params![note_id, tag_id],
+        )?;
+
+        Ok(())
+    }
+
     fn applied_migration(&self) -> Result<Vec<i32>> {
         let mut statement = self
             .connection
