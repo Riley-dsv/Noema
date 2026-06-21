@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use std::{env, path::PathBuf};
+use std::path::PathBuf;
 
 use crate::database::sqlite::SQLStore;
 
@@ -38,11 +38,28 @@ enum NoteCommand {
 }
 
 #[derive(Subcommand)]
+enum TagCommand {
+    List,
+    Create {
+        tag: String,
+        #[arg(long)]
+        attach: Option<String>,
+    },
+    Delete {
+        tag: String,
+    },
+}
+
+#[derive(Subcommand)]
 enum Command {
     Init,
     Note {
         #[command(subcommand)]
         command: NoteCommand,
+    },
+    Tag {
+        #[command(subcommand)]
+        tag: TagCommand,
     },
 }
 
@@ -84,7 +101,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             NoteCommand::Update { id, title } => {
                 commands::update::update_note(&store, &id, title.as_deref())?
             }
-            NoteCommand::Delete { id } => commands::delete::delete_note(&store, &id)?,
+            NoteCommand::Delete { id, .. } => commands::delete::delete_note(&store, &id)?,
+        },
+        Command::Tag { tag } => match tag {
+            TagCommand::List => unimplemented!(),
+            TagCommand::Create {
+                tag,
+                attach: note_id,
+            } => {
+                commands::create::create_tag(&store, &tag)?;
+                if let Some(note_id) = note_id {
+                    commands::update::attach_tag_to_note(&store, &note_id, &tag)?;
+                }
+            }
+            TagCommand::Delete { tag } => unimplemented!("{}", tag),
         },
     }
     Ok(())

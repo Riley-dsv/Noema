@@ -154,6 +154,13 @@ impl SQLStore {
         Ok(())
     }
 
+    pub fn insert_tag(&self, tag_name: &str) -> Result<()> {
+        self.connection
+            .execute("INSERT INTO tags (name) VALUES (?1)", params![tag_name])?;
+
+        Ok(())
+    }
+
     fn applied_migration(&self) -> Result<Vec<i32>> {
         let mut statement = self
             .connection
