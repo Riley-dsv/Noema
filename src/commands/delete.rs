@@ -34,6 +34,24 @@ pub fn detach_tag_from_note(store: &SQLStore, note_id: &str, tag_name: &str) -> 
     Ok(())
 }
 
+pub fn delete_tag(store: &SQLStore, tag_name: &str) -> NoemaResult {
+    if !store.tag_exists(tag_name).unwrap() {
+        println!("Tag: {} Does not exists", tag_name);
+        return Ok(());
+    }
+
+    let tag_id = store.get_id_from_tag_name(tag_name)?;
+
+    let confirmation = confirm_action(format!("Are you sure want to delete the tag {}", tag_name))?;
+
+    if confirmation {
+        let deleted = store.delete_tag(&tag_id)?;
+        println!("Deleted {} tag(s)", deleted);
+    }
+
+    Ok(())
+}
+
 fn confirm_action(message: String) -> Result<bool, Error> {
     print!("{message} (Y/N) > ");
     io::stdout().flush()?;

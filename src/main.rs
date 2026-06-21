@@ -124,7 +124,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     commands::update::attach_tag_to_note(&store, &note_id, &tag)?;
                 }
             }
-            TagCommand::Delete { tag } => unimplemented!("{}", tag),
+            TagCommand::Delete { tag } => commands::delete::delete_tag(&store, &tag)?,
         },
     }
     Ok(())
