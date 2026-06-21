@@ -22,6 +22,12 @@ pub struct NoteSummary {
     pub updated_at: String,
 }
 
+#[derive(Debug)]
+pub struct TagSummary {
+    pub name: String,
+    pub total_attached: i64,
+}
+
 pub struct SQLStore {
     connection: Connection,
 }
@@ -180,6 +186,30 @@ impl SQLStore {
         Ok(deleted)
     }
 
+    pub fn delete_tag(&self, tag_id: &i32) -> Result<usize> {
+        let mut statement = self.connection.prepare("DELETE FROM tags WHERE id=?1")?;
+
+        let deleted = statement.execute(params![tag_id])?;
+
+        Ok(deleted)
+    }
+
+    pub fn list_tags(&self) -> Result<Vec<TagSummary>> {
+        let mut statement = self.connection.prepare(
+            "
+              SELECT tags.name, COUNT(note_tags.id) AS total_attached 
+              FROM tags 
+              LEFT JOIN note_tags ON note_tags.tags_id = tags.id 
+              GROUP BY tags.id, tags.name 
+              ORDER BY tags.name
+            ",
+        )?;
+
+        statement
+            .query_map([], tag_summary_from_row)?
+            .collect::<Result<Vec<_>, _>>()
+    }
+
     pub fn tag_exists(&self, tag_name: &str) -> Result<bool> {
         self.connection.query_row(
             "SELECT name FROM tags WHERE name = ?1",
@@ -303,6 +333,13 @@ fn summary_from_row(row: &Row) -> Result<NoteSummary> {
         id: row.get("id")?,
         title: row.get("title")?,
         updated_at: row.get("updated_at")?,
+    })
+}
+
+fn tag_summary_from_row(row: &Row) -> Result<TagSummary> {
+    Ok(TagSummary {
+        name: row.get("name")?,
+        total_attached: row.get::<_, i64>("total_attached")?,
     })
 }
 

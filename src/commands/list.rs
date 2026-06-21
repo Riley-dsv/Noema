@@ -11,3 +11,15 @@ pub fn list_notes(store: &SQLStore) -> NoemaResult {
 
     Ok(())
 }
+
+pub fn list_tags(store: &SQLStore) -> NoemaResult {
+    let tags = store.list_tags()?;
+    for tag in tags {
+        println!(
+            "Tag name: {}\nAttached to {} note(s)",
+            tag.name, tag.total_attached
+        );
+    }
+
+    Ok(())
+}

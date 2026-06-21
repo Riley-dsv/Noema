@@ -114,7 +114,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
         },
         Command::Tag { tag } => match tag {
-            TagCommand::List => unimplemented!(),
+            TagCommand::List => commands::list::list_tags(&store)?,
             TagCommand::Create {
                 tag,
                 attach: note_id,
