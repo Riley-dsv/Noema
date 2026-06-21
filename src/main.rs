@@ -89,7 +89,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Command::Init => store.init()?,
         Command::Note { command } => match command {
-            NoteCommand::Search { keyword } => commands::search::search_in_notes(&store, &keyword)?,
+            NoteCommand::Search { keyword, tag: _ } => {
+                if let Some(keyword) = keyword {
+                    commands::search::search_in_notes(&store, &keyword)?
+                }
+            }
             NoteCommand::Create { title, content } => {
                 commands::create::create_note(&store, &title, content.as_deref())?
             }

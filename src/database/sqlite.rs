@@ -170,6 +170,22 @@ impl SQLStore {
         Ok(())
     }
 
+    pub fn tag_exists(&self, tag_name: &str) -> Result<bool> {
+        self.connection.query_row(
+            "SELECT name FROM tags WHERE name = ?1",
+            params![tag_name],
+            |row| row.get(0),
+        )
+    }
+
+    pub fn get_id_from_tag_name(&self, tag_name: &str) -> Result<i32> {
+        self.connection.query_row(
+            "SELECT id FROM tags WHERE name = ?1",
+            params![tag_name],
+            |row| row.get(0),
+        )
+    }
+
     fn applied_migration(&self) -> Result<Vec<i32>> {
         let mut statement = self
             .connection
