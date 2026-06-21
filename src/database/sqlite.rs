@@ -170,6 +170,16 @@ impl SQLStore {
         Ok(())
     }
 
+    pub fn delete_tag_from_note(&self, note_id: &str, tag_id: &i32) -> Result<usize> {
+        let mut statement = self
+            .connection
+            .prepare("DELETE FROM note_tags WHERE note_id = ?1 AND tag_id = ?2")?;
+
+        let deleted = statement.execute(params![note_id, tag_id])?;
+
+        Ok(deleted)
+    }
+
     pub fn tag_exists(&self, tag_name: &str) -> Result<bool> {
         self.connection.query_row(
             "SELECT name FROM tags WHERE name = ?1",

@@ -33,6 +33,8 @@ enum NoteCommand {
         title: Option<String>,
     },
     Delete {
+        #[arg(long)]
+        tag: Option<String>,
         id: String,
     },
 }
@@ -103,7 +105,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             NoteCommand::Update { id, title } => {
                 commands::update::update_note(&store, &id, title.as_deref())?
             }
-            NoteCommand::Delete { id, .. } => commands::delete::delete_note(&store, &id)?,
+            NoteCommand::Delete { id, tag } => {
+                if let Some(tag) = tag {
+                    commands::delete::detach_tag_from_note(&store, &id, &tag)?;
+                    return Ok(());
+                }
+                commands::delete::delete_note(&store, &id)?;
+            }
         },
         Command::Tag { tag } => match tag {
             TagCommand::List => unimplemented!(),
