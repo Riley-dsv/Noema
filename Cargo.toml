@@ -1,7 +1,9 @@
 [package]
 name = "noema"
-version = "0.0.4"
+authors = [ "Riley" ]
+version = "0.0.6-alpha"
 edition = "2024"
+license = "CC0-1"
 
 [dependencies]
 chrono = "0.4.44"

@@ -1,7 +1,7 @@
 cargo build --release
 
-VERSION="v0.0.5-alpha"
-TARGET="x86_64-linux"
+VERSION=$(grep -m 1 "version" Cargo.toml | cut -d"=" -f2 | cut -d" " -f2)
+TARGET="Linux-$(uname -m)"
 ARCHIVE="noema-${VERSION}-${TARGET}.tar.gz"
 
 mkdir -p "dist/noema-${VERSION}"
