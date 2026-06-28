@@ -8,20 +8,24 @@ It is inspired by knowledge management and Zettelkasten-oriented tools such as T
 
 At the moment, Noema is a minimal CLI-based note-taking application featuring:
 
-- SQLite-based storage
-- Terminal editor integration through `$EDITOR`
-- Basic note CRUD operations
-- Local persistent database
-- UUID-based note identifiers
+* SQLite-based storage
+* Terminal editor integration through `$EDITOR`
+* Basic note CRUD operations
+* Local persistent database
+* UUID-based note identifiers
+* Tag creation and deletion
+* Tag attachment to notes
+* Note filtering by tag
+* Note search by keyword and/or tag
 
 ## Requirements
 
 Noema expects the `EDITOR` environment variable to be set to a terminal editor such as:
 
-- `vim`
-- `nvim`
-- `nano`
-- `helix`
+* `vim`
+* `nvim`
+* `nano`
+* `helix`
 
 If no editor is configured, Noema falls back to `vi`.
 
@@ -114,6 +118,20 @@ notema note search <KEYWORD>
 
 Search both titles and note contents for a keyword.
 
+Search notes by tag:
+
+```sh
+noema note search --tag "rust"
+```
+
+Search notes by both keyword and tag:
+
+```sh
+noema note search "sqlite" --tag "rust"
+```
+
+When both a keyword and a tag are provided, Noema returns notes matching both criteria.
+
 ### Info about a note
 
 ```sh
@@ -126,6 +144,7 @@ Display note metadata :
 * title
 * creation date
 * update date
+* attached tags 
 
 ### Delete a note
 
@@ -133,13 +152,56 @@ Display note metadata :
 noema note delete <ID>
 ```
 
-Deletes the specified note.
+### Delete tag relation 
+
+```sh
+noema note delete <ID> --tag "rust"
+```
+## Tags
+
+### List tags
+
+```sh
+noema tag list
+```
+Lists available tags.
+
+### Create a tag
+
+```sh
+noema tag create "rust"
+```
+
+Creates a new tag, or : 
+
+```
+noema tag create "rust" --attach <note-id>
+```
+
+Creates the tag if needed and attaches it to the specified note.
+
+### Attach an existing tag to a note
+
+```sh
+noema tag attach "rust" <ID>
+```
+
+Associates a tag with an existing note.
+
+### Delete a tag
+
+```sh
+noema tag delete "rust"
+```
+
+Deletes the specified tag.
 
 ## Help
 
 ```sh
 noema --help
 noema note --help
+noema tag --help
 ```
 
 ## Current State
