@@ -7,9 +7,7 @@ pub enum NoemaError {
     #[error("IO Error: {0}")]
     Io(#[from] std::io::Error),
     #[error("Editor Failed with an error")]
-    EditorFailed,
-    #[error("note not found: {0}")]
-    NoteNotFound(String),
+    SearchFailed(String),
 }
 
 pub type NoemaResult<T = ()> = Result<T, NoemaError>;

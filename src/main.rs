@@ -12,7 +12,10 @@ mod path;
 #[derive(Subcommand)]
 enum NoteCommand {
     Search {
-        keyword: String,
+        #[arg(required_unless_present = "tag")]
+        keyword: Option<String>,
+        #[arg(long)]
+        tag: Option<String>,
     },
     Create {
         #[arg(short, long)]
@@ -50,6 +53,10 @@ enum TagCommand {
     Delete {
         tag: String,
     },
+    Attach {
+        tag: String,
+        note: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -86,15 +93,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let db_path = cli.path.unwrap_or_else(path::default_database_path);
     let store = SQLStore::open(db_path)?;
+    store.init()?;
     store.migrate()?;
 
     match cli.command {
         Command::Init => store.init()?,
         Command::Note { command } => match command {
-            NoteCommand::Search { keyword, tag: _ } => {
-                if let Some(keyword) = keyword {
-                    commands::search::search_in_notes(&store, &keyword)?
-                }
+            NoteCommand::Search { keyword, tag } => {
+                commands::search::search_in_notes(&store, keyword.as_deref(), tag.as_deref())?
             }
             NoteCommand::Create { title, content } => {
                 commands::create::create_note(&store, &title, content.as_deref())?
@@ -125,6 +131,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             TagCommand::Delete { tag } => commands::delete::delete_tag(&store, &tag)?,
+            TagCommand::Attach { tag, note } => {
+                commands::update::attach_tag_to_note(&store, &note, &tag)?
+            }
         },
     }
     Ok(())

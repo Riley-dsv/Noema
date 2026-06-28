@@ -13,7 +13,7 @@ pub fn update_note(store: &SQLStore, id: &str, title: Option<&str>) -> NoemaResu
 }
 
 pub fn attach_tag_to_note(store: &SQLStore, note_id: &str, tag_name: &str) -> NoemaResult {
-    if !store.tag_exists(tag_name).unwrap() {
+    if !store.tag_exists(tag_name)? {
         println!("Tag: {} Does not exists", tag_name);
         return Ok(());
     }

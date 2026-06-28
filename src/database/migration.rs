@@ -23,7 +23,7 @@ pub const INIT_SCHEMA: &str = "
     );
 
     CREATE TABLE IF NOT EXISTS tags (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
     );
 
@@ -35,7 +35,7 @@ pub const INIT_SCHEMA: &str = "
 
         FOREIGN KEY (note_id)
             REFERENCES notes(id)
-            ON DELETE CASCADE,
+            ON DELETE CASCADE
 
         FOREIGN KEY (tag_id)
             REFERENCES tags(id)
@@ -72,11 +72,11 @@ pub const MIGRATIONS: &[Migration] = &[Migration {
 
             FOREIGN KEY (note_id)
               REFERENCES notes(id)
-              ON DELETE CASCADE,
+              ON DELETE CASCADE
 
             FOREIGN KEY (tag_id)
               REFERENCES tags(id)
-              ON DELETE CASCADE,
+              ON DELETE CASCADE
           );
 
           CREATE INDEX IF NOT EXISTS idx_note_tags

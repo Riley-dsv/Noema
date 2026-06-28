@@ -15,7 +15,7 @@ pub struct Note {
     pub updated_at: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 pub struct NoteSummary {
     pub id: String,
     pub title: String,
@@ -33,6 +33,26 @@ pub struct SQLStore {
 }
 
 impl SQLStore {
+    #[allow(dead_code)]
+    fn execute_batch_debug(conn: &rusqlite::Connection, sql: &str) -> rusqlite::Result<()> {
+        for statement in sql.split(';') {
+            let statement = statement.trim();
+
+            if statement.is_empty() {
+                continue;
+            }
+
+            eprintln!("\nSQL => {}\n", statement);
+
+            conn.execute_batch(statement).map_err(|err| {
+                eprintln!("FAILED SQL => {}\nERROR => {}", statement, err);
+                err
+            })?;
+        }
+
+        Ok(())
+    }
+
     pub fn open(db_path: PathBuf) -> Result<Self> {
         let connection = connect(db_path)?;
         Ok(Self { connection })
@@ -197,9 +217,9 @@ impl SQLStore {
     pub fn list_tags(&self) -> Result<Vec<TagSummary>> {
         let mut statement = self.connection.prepare(
             "
-              SELECT tags.name, COUNT(note_tags.id) AS total_attached 
+              SELECT tags.name, COUNT(note_tags.note_id) AS total_attached 
               FROM tags 
-              LEFT JOIN note_tags ON note_tags.tags_id = tags.id 
+              LEFT JOIN note_tags ON note_tags.tag_id = tags.id 
               GROUP BY tags.id, tags.name 
               ORDER BY tags.name
             ",
@@ -212,9 +232,9 @@ impl SQLStore {
 
     pub fn tag_exists(&self, tag_name: &str) -> Result<bool> {
         self.connection.query_row(
-            "SELECT name FROM tags WHERE name = ?1",
+            "SELECT 1  FROM tags WHERE name = ?1",
             params![tag_name],
-            |row| row.get(0),
+            |row| row.get::<_, bool>(0),
         )
     }
 
@@ -224,6 +244,36 @@ impl SQLStore {
             params![tag_name],
             |row| row.get(0),
         )
+    }
+
+    pub fn filter_notes_by_tag(&self, tag_id: &i32) -> Result<Vec<NoteSummary>> {
+        let mut statement = self.connection.prepare(
+            "
+              SELECT id, title, updated_at 
+              FROM notes 
+              LEFT JOIN note_tags ON note_tags.note_id = notes.id
+              WHERE note_tags.tag_id = ?1
+            ",
+        )?;
+
+        statement
+            .query_map([tag_id], summary_from_row)?
+            .collect::<Result<Vec<_>, _>>()
+    }
+
+    pub fn filter_tags_by_note(&self, note_id: &str) -> Result<Vec<String>> {
+        let mut statement = self.connection.prepare(
+            "
+            SELECT name 
+            FROM tags 
+            LEFT JOIN note_tags ON note_tags.tag_id = tags.id 
+            WHERE note_tags.note_id = ?1
+          ",
+        )?;
+
+        statement
+            .query_map([note_id], |row| row.get(0))?
+            .collect::<Result<_>>()
     }
 
     fn applied_migration(&self) -> Result<Vec<i32>> {

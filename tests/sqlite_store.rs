@@ -39,3 +39,14 @@ fn should_update_note() {
 
     assert_ne!(old_note.title, new_note.title);
 }
+
+#[test]
+fn should_create_tag() {
+    let store = SQLStore::open_in_memory().unwrap();
+
+    store.init().unwrap();
+
+    let _ = store.insert_tag("Test");
+
+    assert!(store.tag_exists("Test").unwrap());
+}
