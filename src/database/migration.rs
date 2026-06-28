@@ -6,12 +6,15 @@ pub struct Migration {
 pub const CURRENT_MIGRATION_VERSION: i32 = 2;
 
 pub const INIT_SCHEMA: &str = "
+
+    BEGIN TRANSACTION;
+    
     CREATE TABLE IF NOT EXISTS schema_migrations (
         version INTEGER PRIMARY KEY DEFAULT 1,
         applied_at TEXT NOT NULL
-    ),
+    );
 
-    CREATE TABLE notes (
+    CREATE TABLE IF NOT EXISTS notes (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         content TEXT,
@@ -19,12 +22,12 @@ pub const INIT_SCHEMA: &str = "
         updated_at TEXT
     );
 
-    CREATE TABLE tags (
-        id INTEGER PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
     );
 
-    CREATE TABLE note_tags (
+    CREATE TABLE IF NOT EXISTS note_tags (
         note_id TEXT NOT NULL,
         tag_id INTEGER NOT NULL,
 
@@ -32,32 +35,36 @@ pub const INIT_SCHEMA: &str = "
 
         FOREIGN KEY (note_id)
             REFERENCES notes(id)
-            ON DELETE CASCADE,
+            ON DELETE CASCADE
 
         FOREIGN KEY (tag_id)
             REFERENCES tags(id)
             ON DELETE CASCADE
     );
 
-    CREATE INDEX idx_note_tags
+    CREATE INDEX IF NOT EXISTS idx_note_tags
         ON note_tags(tag_id);
+
+    COMMIT;
 ";
 
 pub const MIGRATIONS: &[Migration] = &[Migration {
     version: 2,
     sql: "
 
+          BEGIN TRANSACTION;
+
           CREATE TABLE IF NOT EXISTS schema_migrations (
               version INTEGER PRIMARY KEY,
               applied_at TEXT NOT NULL
-          ),
+          );
 
-          CREATE TABLE tags (
+          CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE
           );
 
-          CREATE TABLE note_tags (
+          CREATE TABLE IF NOT EXISTS note_tags (
             note_id TEXT NOT NULL,
             tag_id INTEGER NOT NULL,
 
@@ -65,14 +72,16 @@ pub const MIGRATIONS: &[Migration] = &[Migration {
 
             FOREIGN KEY (note_id)
               REFERENCES notes(id)
-              ON DELETE CASCADE,
+              ON DELETE CASCADE
 
             FOREIGN KEY (tag_id)
               REFERENCES tags(id)
-              ON DELETE CASCADE,
+              ON DELETE CASCADE
           );
 
-          CREATE INDEX idx_note_tags
+          CREATE INDEX IF NOT EXISTS idx_note_tags
             ON note_tags(tag_id);
+
+          COMMIT;
         ",
 }];
