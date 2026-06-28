@@ -1,6 +1,6 @@
 cargo build --release
 
-VERSION=$(grep -m 1 "version" Cargo.toml | cut -d"=" -f2 | cut -d" " -f2)
+VERSION="v$(grep -m 1 "version" Cargo.toml | cut -d"=" -f2 | cut -d" " -f2 | sed 's/"//g')"
 TARGET="Linux-$(uname -m)"
 ARCHIVE="noema-${VERSION}-${TARGET}.tar.gz"
 
