@@ -6,3 +6,9 @@ pub fn create_note(store: &SQLStore, title: &str, content: Option<&str>) -> Noem
     println!("Note {} created with ID: {}", title, id);
     Ok(())
 }
+
+pub fn create_tag(store: &SQLStore, tag_name: &str) -> NoemaResult {
+    store.insert_tag(tag_name)?;
+    println!("Tag {} created.", tag_name);
+    Ok(())
+}
