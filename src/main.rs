@@ -1,86 +1,13 @@
-use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use clap::Parser;
 
-use crate::database::sqlite::SQLStore;
+use crate::{cli::Cli, database::sqlite::SQLStore};
 
+mod cli;
 mod commands;
 mod database;
 mod editor;
 mod error;
 mod path;
-
-#[derive(Subcommand)]
-enum NoteCommand {
-    Search {
-        #[arg(required_unless_present = "tag")]
-        keyword: Option<String>,
-        #[arg(long)]
-        tag: Option<String>,
-    },
-    Create {
-        #[arg(short, long)]
-        title: String,
-        #[arg(short, long)]
-        content: Option<String>,
-    },
-    Info {
-        id: String,
-    },
-    List,
-    Read {
-        id: String,
-    },
-    Update {
-        id: String,
-        #[arg(short, long)]
-        title: Option<String>,
-    },
-    Delete {
-        #[arg(long)]
-        tag: Option<String>,
-        id: String,
-    },
-}
-
-#[derive(Subcommand)]
-enum TagCommand {
-    List,
-    Create {
-        tag: String,
-        #[arg(long)]
-        attach: Option<String>,
-    },
-    Delete {
-        tag: String,
-    },
-    Attach {
-        tag: String,
-        note: String,
-    },
-}
-
-#[derive(Subcommand)]
-enum Command {
-    Init,
-    Note {
-        #[command(subcommand)]
-        command: NoteCommand,
-    },
-    Tag {
-        #[command(subcommand)]
-        tag: TagCommand,
-    },
-}
-
-#[derive(Parser)]
-#[command(name = "noema")]
-#[command(about = "A native personal knowledge base")]
-struct Cli {
-    #[arg(long, global = true)]
-    path: Option<PathBuf>,
-    #[command(subcommand)]
-    command: Command,
-}
 
 fn main() {
     if let Err(err) = run() {
@@ -97,21 +24,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     store.migrate()?;
 
     match cli.command {
-        Command::Init => store.init()?,
-        Command::Note { command } => match command {
-            NoteCommand::Search { keyword, tag } => {
+        cli::Command::Init => store.init()?,
+        cli::Command::Note { command } => match command {
+            cli::NoteCommand::Search { keyword, tag } => {
                 commands::search::search_in_notes(&store, keyword.as_deref(), tag.as_deref())?
             }
-            NoteCommand::Create { title, content } => {
+            cli::NoteCommand::Create { title, content } => {
                 commands::create::create_note(&store, &title, content.as_deref())?
             }
-            NoteCommand::List => commands::list::list_notes(&store)?,
-            NoteCommand::Read { id } => commands::read::read_note(&store, &id)?,
-            NoteCommand::Info { id } => commands::info::note_info(&store, &id)?,
-            NoteCommand::Update { id, title } => {
+            cli::NoteCommand::List => commands::list::list_notes(&store)?,
+            cli::NoteCommand::Read { id } => commands::read::read_note(&store, &id)?,
+            cli::NoteCommand::Info { id } => commands::info::note_info(&store, &id)?,
+            cli::NoteCommand::Update { id, title } => {
                 commands::update::update_note(&store, &id, title.as_deref())?
             }
-            NoteCommand::Delete { id, tag } => {
+            cli::NoteCommand::Delete { id, tag } => {
                 if let Some(tag) = tag {
                     commands::delete::detach_tag_from_note(&store, &id, &tag)?;
                     return Ok(());
@@ -119,9 +46,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 commands::delete::delete_note(&store, &id)?;
             }
         },
-        Command::Tag { tag } => match tag {
-            TagCommand::List => commands::list::list_tags(&store)?,
-            TagCommand::Create {
+        cli::Command::Tag { tag } => match tag {
+            cli::TagCommand::List => commands::list::list_tags(&store)?,
+            cli::TagCommand::Create {
                 tag,
                 attach: note_id,
             } => {
@@ -130,8 +57,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     commands::update::attach_tag_to_note(&store, &note_id, &tag)?;
                 }
             }
-            TagCommand::Delete { tag } => commands::delete::delete_tag(&store, &tag)?,
-            TagCommand::Attach { tag, note } => {
+            cli::TagCommand::Delete { tag } => commands::delete::delete_tag(&store, &tag)?,
+            cli::TagCommand::Attach { tag, note } => {
                 commands::update::attach_tag_to_note(&store, &note, &tag)?
             }
         },
