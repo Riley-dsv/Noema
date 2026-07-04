@@ -28,10 +28,6 @@ pub struct TagSummary {
     pub total_attached: i64,
 }
 
-pub struct SQLStore {
-    connection: Connection,
-}
-
 impl SQLStore {
     #[allow(dead_code)]
     fn execute_batch_debug(conn: &rusqlite::Connection, sql: &str) -> rusqlite::Result<()> {
@@ -53,44 +49,11 @@ impl SQLStore {
         Ok(())
     }
 
-    pub fn open(db_path: PathBuf) -> Result<Self> {
-        let connection = connect(db_path)?;
-        Ok(Self { connection })
-    }
-
     // Used in tests so not so dead.
     #[allow(dead_code)]
     pub fn open_in_memory() -> Result<Self> {
         let connection = Connection::open_in_memory()?;
         Ok(Self { connection })
-    }
-
-    pub fn init(&self) -> Result<()> {
-        self.connection.execute_batch(INIT_SCHEMA)?;
-        Ok(())
-    }
-
-    pub fn migrate(&self) -> Result<()> {
-        if self.table_exists("notes")? {
-            let id_type = self.get_id_field_type();
-            if matches!(id_type, Ok(Some(field_type)) if field_type == "INTEGER") {
-                self.normalize_notes_integer_id_to_text()?;
-            }
-        }
-
-        let applied = self.applied_migration()?;
-        let current_version = applied.last().copied().unwrap_or(0);
-
-        if current_version < CURRENT_MIGRATION_VERSION {
-            for migration in MIGRATIONS {
-                if migration.version > current_version {
-                    self.connection.execute_batch(migration.sql)?;
-                    self.update_migration_count(&migration.version)?;
-                }
-            }
-        }
-
-        Ok(())
     }
 
     pub fn insert_note(&self, note_title: &str, note_content: &str) -> Result<String> {

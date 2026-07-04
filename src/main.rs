@@ -8,6 +8,7 @@ mod database;
 mod editor;
 mod error;
 mod path;
+mod store;
 
 fn main() {
     if let Err(err) = run() {
