@@ -9,12 +9,6 @@ pub struct NoteSummary {
     pub updated_at: String,
 }
 
-#[derive(Debug)]
-pub struct TagSummary {
-    pub name: String,
-    pub total_attached: i64,
-}
-
 impl SQLStore {
     #[allow(dead_code)]
     fn execute_batch_debug(conn: &rusqlite::Connection, sql: &str) -> rusqlite::Result<()> {
@@ -55,13 +49,6 @@ impl SQLStore {
             .collect::<Result<Vec<_>>>()?)
     }
 
-    pub fn insert_tag(&self, tag_name: &str) -> Result<()> {
-        self.connection
-            .execute("INSERT INTO tags (name) VALUES (?1)", params![tag_name])?;
-
-        Ok(())
-    }
-
     pub fn update_note_tags(&self, note_id: &str, tag_id: &i32) -> Result<()> {
         self.connection.execute(
             "INSERT OR IGNORE INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
@@ -79,46 +66,6 @@ impl SQLStore {
         let deleted = statement.execute(params![note_id, tag_id])?;
 
         Ok(deleted)
-    }
-
-    pub fn delete_tag(&self, tag_id: &i32) -> Result<usize> {
-        let mut statement = self.connection.prepare("DELETE FROM tags WHERE id=?1")?;
-
-        let deleted = statement.execute(params![tag_id])?;
-
-        Ok(deleted)
-    }
-
-    pub fn list_tags(&self) -> Result<Vec<TagSummary>> {
-        let mut statement = self.connection.prepare(
-            "
-              SELECT tags.name, COUNT(note_tags.note_id) AS total_attached 
-              FROM tags 
-              LEFT JOIN note_tags ON note_tags.tag_id = tags.id 
-              GROUP BY tags.id, tags.name 
-              ORDER BY tags.name
-            ",
-        )?;
-
-        statement
-            .query_map([], tag_summary_from_row)?
-            .collect::<Result<Vec<_>, _>>()
-    }
-
-    pub fn tag_exists(&self, tag_name: &str) -> Result<bool> {
-        self.connection.query_row(
-            "SELECT 1  FROM tags WHERE name = ?1",
-            params![tag_name],
-            |row| row.get::<_, bool>(0),
-        )
-    }
-
-    pub fn get_id_from_tag_name(&self, tag_name: &str) -> Result<i32> {
-        self.connection.query_row(
-            "SELECT id FROM tags WHERE name = ?1",
-            params![tag_name],
-            |row| row.get(0),
-        )
     }
 
     pub fn filter_notes_by_tag(&self, tag_id: &i32) -> Result<Vec<NoteSummary>> {
@@ -165,12 +112,5 @@ fn summary_from_row(row: &Row) -> Result<NoteSummary> {
         id: row.get("id")?,
         title: row.get("title")?,
         updated_at: row.get("updated_at")?,
-    })
-}
-
-fn tag_summary_from_row(row: &Row) -> Result<TagSummary> {
-    Ok(TagSummary {
-        name: row.get("name")?,
-        total_attached: row.get::<_, i64>("total_attached")?,
     })
 }

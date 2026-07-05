@@ -1,6 +1,6 @@
 use rusqlite::{Result, Row, params};
 
-use crate::store::sqlite::{SQLStore, notes::Note};
+use crate::store::sqlite::{SQLStore, notes::Note, tags::TagSummary};
 
 impl SQLStore {
     pub fn table_exists(&self, table_name: &str) -> Result<bool> {
@@ -41,6 +41,13 @@ impl SQLStore {
             content: row.get("content")?,
             created_at: row.get("created_at")?,
             updated_at: row.get("updated_at")?,
+        })
+    }
+
+    pub fn tag_summary_from_row(row: &Row) -> Result<TagSummary> {
+        Ok(TagSummary {
+            name: row.get("name")?,
+            total_attached: row.get::<_, i64>("total_attached")?,
         })
     }
 }
