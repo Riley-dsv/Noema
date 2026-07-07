@@ -50,4 +50,12 @@ impl SQLStore {
             total_attached: row.get::<_, i64>("total_attached")?,
         })
     }
+
+    pub fn summary_from_row(row: &Row) -> Result<NoteSummary> {
+        Ok(NoteSummary {
+            id: row.get("id")?,
+            title: row.get("title")?,
+            updated_at: row.get("updated_at")?,
+        })
+    }
 }

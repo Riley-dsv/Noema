@@ -14,4 +14,9 @@ impl SQLStore {
         let store = Self { connection };
         Ok(store)
     }
+
+    pub fn open_in_memory() -> crate::error::NoemaResult<Self> {
+        let connection = Connection::open_in_memory()?;
+        Ok(Self { connection })
+    }
 }
