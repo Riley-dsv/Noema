@@ -8,7 +8,7 @@ pub struct TagSummary {
     pub total_attached: i64,
 }
 
-trait TagsStore {
+pub trait TagsStore {
     fn insert_tag(&self, tag_name: &str) -> Result<()>;
     fn delete_tag(&self, tag_id: &i32) -> Result<usize>;
     fn list_tags(&self) -> Result<Vec<TagSummary>>;
@@ -44,7 +44,7 @@ impl TagsStore for SQLStore {
         )?;
 
         statement
-            .query_map([], self.tag_summary_from_row)?
+            .query_map([], SQLStore::tag_summary_from_row)?
             .collect::<Result<Vec<_>, _>>()
     }
 

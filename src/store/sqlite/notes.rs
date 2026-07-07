@@ -51,7 +51,7 @@ impl NoteStore for SQLStore {
         self.connection.query_row(
             "SELECT id, title, content, created_at, updated_at FROM notes WHERE id=?1",
             params![note_id],
-            self.note_from_row,
+            SQLStore::note_from_row,
         )
     }
 
@@ -85,7 +85,7 @@ impl NoteStore for SQLStore {
         )?;
 
         Ok(statement
-            .query_map([], self.note_from_row)?
+            .query_map([], SQLStore::note_from_row)?
             .collect::<Result<Vec<_>>>()?)
     }
 

@@ -1,6 +1,6 @@
 use rusqlite::{Result, Row, params};
 
-use crate::store::sqlite::{SQLStore, notes::Note, tags::TagSummary};
+use crate::store::sqlite::{SQLStore, note_tags::NoteSummary, notes::Note, tags::TagSummary};
 
 impl SQLStore {
     pub fn table_exists(&self, table_name: &str) -> Result<bool> {

@@ -2,7 +2,11 @@ use super::SQLStore;
 use rusqlite::Connection;
 
 impl SQLStore {
-    pub fn open(path: impl AsRef<std::path::Path>) -> crate::error::NoemaResult<Self> {
+    pub fn open(path: std::path::PathBuf) -> crate::error::NoemaResult<Self> {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).expect("failed to create database directory");
+        }
+
         let connection = Connection::open(path)?;
 
         connection.execute("PRAGMA foreign_keys = ON", [])?;
