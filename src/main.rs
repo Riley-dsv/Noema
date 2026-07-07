@@ -1,13 +1,15 @@
 use clap::Parser;
 
-use crate::{cli::Cli, database::sqlite::SQLStore};
+use crate::cli::Cli;
+
+use crate::store::sqlite::SQLStore;
 
 mod cli;
 mod commands;
-mod database;
 mod editor;
 mod error;
 mod path;
+mod store;
 
 fn main() {
     if let Err(err) = run() {
@@ -19,9 +21,11 @@ fn main() {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let db_path = cli.path.unwrap_or_else(path::default_database_path);
-    let store = SQLStore::open(db_path)?;
-    store.init()?;
-    store.migrate()?;
+    let mut store = SQLStore::open(db_path)?;
+
+    if path::noemna_db_is_present(db_path) {
+        store.migrate()?;
+    }
 
     match cli.command {
         cli::Command::Init => store.init()?,
