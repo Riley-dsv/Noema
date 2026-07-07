@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf};
+use std::{env, fs::exists, path::PathBuf};
 
 pub fn default_database_path() -> PathBuf {
     #[cfg(target_os = "windows")]
@@ -27,10 +27,14 @@ pub fn default_database_path() -> PathBuf {
 
         let home = env::var("HOME").expect("HOME is not set");
 
-        PathBuf::from(home)
+        return PathBuf::from(home)
             .join(".local")
             .join("share")
             .join("noema")
-            .join("noema.db")
+            .join("noema.db");
     }
+}
+
+pub fn noemna_db_is_present(db_path: PathBuf) -> bool {
+    return exists(db_path).expect("Error when look for db path");
 }
