@@ -1,11 +1,17 @@
 use std::collections::HashSet;
 
 use crate::{
-    database::sqlite::{NoteSummary, SQLStore},
     error::{NoemaError, NoemaResult},
+    store::sqlite::{
+        note_tags::{NoteSummary, NoteTagsStore},
+        tags::TagsStore,
+    },
 };
 
-fn search_by_tag(store: &SQLStore, tag: &str) -> Result<Vec<NoteSummary>, NoemaError> {
+fn search_by_tag<Store: TagsStore + NoteTagsStore>(
+    store: &Store,
+    tag: &str,
+) -> Result<Vec<NoteSummary>, NoemaError> {
     let tag_exists = store.tag_exists(tag)?;
 
     if !tag_exists {
@@ -24,7 +30,10 @@ fn search_by_tag(store: &SQLStore, tag: &str) -> Result<Vec<NoteSummary>, NoemaE
     Ok(notes)
 }
 
-fn search_by_keyword(store: &SQLStore, keyword: &str) -> Result<Vec<NoteSummary>, NoemaError> {
+fn search_by_keyword<Store: NoteTagsStore>(
+    store: &Store,
+    keyword: &str,
+) -> Result<Vec<NoteSummary>, NoemaError> {
     let notes = store.search_content(keyword)?;
 
     if notes.is_empty() {
@@ -35,8 +44,8 @@ fn search_by_keyword(store: &SQLStore, keyword: &str) -> Result<Vec<NoteSummary>
     Ok(notes)
 }
 
-fn search_by_tag_and_keyword(
-    store: &SQLStore,
+fn search_by_tag_and_keyword<Store: NoteTagsStore + TagsStore>(
+    store: &Store,
     keyword: &str,
     tag: &str,
 ) -> Result<Vec<NoteSummary>, NoemaError> {
@@ -64,7 +73,11 @@ fn search_by_tag_and_keyword(
     Ok(intersection)
 }
 
-pub fn search_in_notes(store: &SQLStore, keyword: Option<&str>, tag: Option<&str>) -> NoemaResult {
+pub fn search_in_notes<Store: NoteTagsStore + TagsStore>(
+    store: &Store,
+    keyword: Option<&str>,
+    tag: Option<&str>,
+) -> NoemaResult {
     let notes: Vec<NoteSummary> = match (tag, keyword) {
         (Some(tag), Some(keyword)) => search_by_tag_and_keyword(store, keyword, tag)?,
         (Some(tag), None) => search_by_tag(store, tag)?,

@@ -1,8 +1,11 @@
 use std::io::{self, Error, Write};
 
-use crate::{database::sqlite::SQLStore, error::NoemaResult};
+use crate::{
+    error::NoemaResult,
+    store::sqlite::{note_tags::NoteTagsStore, notes::NoteStore, tags::TagsStore},
+};
 
-pub fn delete_note(store: &SQLStore, id: &str) -> NoemaResult {
+pub fn delete_note<Store: NoteStore>(store: &Store, id: &str) -> NoemaResult {
     let confirmation = confirm_action(format!("Are you sure you want to delete the note: {}", id))?;
 
     if confirmation {
@@ -13,7 +16,11 @@ pub fn delete_note(store: &SQLStore, id: &str) -> NoemaResult {
     Ok(())
 }
 
-pub fn detach_tag_from_note(store: &SQLStore, note_id: &str, tag_name: &str) -> NoemaResult {
+pub fn detach_tag_from_note<Store: NoteTagsStore + TagsStore>(
+    store: &Store,
+    note_id: &str,
+    tag_name: &str,
+) -> NoemaResult {
     if !store.tag_exists(tag_name).unwrap() {
         println!("Tag: {} Does not exists", tag_name);
         return Ok(());
@@ -34,7 +41,7 @@ pub fn detach_tag_from_note(store: &SQLStore, note_id: &str, tag_name: &str) -> 
     Ok(())
 }
 
-pub fn delete_tag(store: &SQLStore, tag_name: &str) -> NoemaResult {
+pub fn delete_tag<Store: TagsStore>(store: &Store, tag_name: &str) -> NoemaResult {
     if !store.tag_exists(tag_name).unwrap() {
         println!("Tag: {} Does not exists", tag_name);
         return Ok(());

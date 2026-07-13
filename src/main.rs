@@ -21,9 +21,9 @@ fn main() {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let db_path = cli.path.unwrap_or_else(path::default_database_path);
-    let mut store = SQLStore::open(db_path)?;
+    let mut store = SQLStore::open(db_path.clone())?;
 
-    if path::noemna_db_is_present(db_path) {
+    if path::noemna_db_is_present(&db_path) {
         store.migrate()?;
     }
 

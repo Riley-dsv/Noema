@@ -35,6 +35,6 @@ pub fn default_database_path() -> PathBuf {
     }
 }
 
-pub fn noemna_db_is_present(db_path: PathBuf) -> bool {
+pub fn noemna_db_is_present(db_path: &PathBuf) -> bool {
     return exists(db_path).expect("Error when look for db path");
 }
