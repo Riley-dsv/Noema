@@ -62,6 +62,18 @@ pub enum Command {
         #[command(subcommand)]
         tag: TagCommand,
     },
+    Search {
+        #[arg(required_unless_present = "tag")]
+        keyword: Option<String>,
+        #[arg(long)]
+        tag: Option<String>,
+        #[arg(long, requires = "keyword")]
+        title: Option<bool>,
+        #[arg(long, requires = "keyword")]
+        content: Option<bool>,
+        #[arg(long)]
+        limit: Option<usize>,
+    },
 }
 
 #[derive(Parser)]
