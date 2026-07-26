@@ -17,6 +17,7 @@ impl SQLStore {
 
     pub fn open_in_memory() -> crate::error::NoemaResult<Self> {
         let connection = Connection::open_in_memory()?;
+        connection.execute("PRAGMA foreign_keys = ON", [])?;
         Ok(Self { connection })
     }
 }

@@ -50,7 +50,7 @@ impl TagsStore for SQLStore {
 
     fn tag_exists(&self, tag_name: &str) -> Result<bool> {
         self.connection.query_row(
-            "SELECT 1  FROM tags WHERE name = ?1",
+            "SELECT EXISTS(SELECT 1 FROM tags WHERE name = ?1)",
             params![tag_name],
             |row| row.get::<_, bool>(0),
         )

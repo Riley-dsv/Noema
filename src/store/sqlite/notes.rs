@@ -38,7 +38,7 @@ impl NoteStore for SQLStore {
 
         self.connection.execute(
             "
-              INSERT INTO notes (id, title, content. created_at, updated_at) 
+              INSERT INTO notes (id, title, content, created_at, updated_at)
               VALUES (?1, ?2, ?3, ?4, ?5)
             ",
             params![id, note_title, note_content, now, now],
