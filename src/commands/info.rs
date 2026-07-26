@@ -1,6 +1,9 @@
-use crate::{database::sqlite::SQLStore, error::NoemaResult};
+use crate::{
+    error::NoemaResult,
+    store::sqlite::{note_tags::NoteTagsStore, notes::NoteStore},
+};
 
-pub fn note_info(store: &SQLStore, id: &str) -> NoemaResult {
+pub fn note_info<Store: NoteStore + NoteTagsStore>(store: &Store, id: &str) -> NoemaResult {
     let note = store.get_note(&id)?;
     let content_size = note.content.len();
     let tags: String = store.filter_tags_by_note(&id)?.join(", ");

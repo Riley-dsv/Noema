@@ -1,6 +1,9 @@
-use crate::{database::sqlite::SQLStore, error::NoemaResult};
+use crate::{
+    error::NoemaResult,
+    store::sqlite::{notes::NoteStore, tags::TagsStore},
+};
 
-pub fn list_notes(store: &SQLStore) -> NoemaResult {
+pub fn list_notes<Store: NoteStore>(store: &Store) -> NoemaResult {
     let notes = store.list_notes()?;
     for note in notes {
         println!(
@@ -12,7 +15,7 @@ pub fn list_notes(store: &SQLStore) -> NoemaResult {
     Ok(())
 }
 
-pub fn list_tags(store: &SQLStore) -> NoemaResult {
+pub fn list_tags<Store: TagsStore>(store: &Store) -> NoemaResult {
     let tags = store.list_tags()?;
     for tag in tags {
         println!(
