@@ -65,6 +65,10 @@ pub enum TagCommand {
         tag: String,
         note: String,
     },
+    Detach {
+        tag: String,
+        note: String,
+    },
 }
 
 #[derive(Subcommand)]
