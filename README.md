@@ -17,6 +17,7 @@ At the moment, Noema is a minimal CLI-based note-taking application featuring:
 * Tag attachment to notes
 * Note filtering by tag
 * Note search by keyword and/or tag
+* Advanced note search with multiple tags, field filters, and result limits
 
 ## Requirements
 
@@ -75,13 +76,13 @@ This creates the local SQLite database used to store your notes, if path is not 
 ### Create a note
 
 ```sh
-noema note create --title "My note"
+noema note create --title My note
 ```
 
 You can also provide initial content directly from the command line:
 
 ```
-noema not create --title "My note" --content "# Initial content"
+noema not create --title My note --content # Initial content
 ```
 
 Once the editor is closed, the note content is saved to the database.
@@ -113,7 +114,7 @@ Opens the note in your configured editor.
 ### Search notes
 
 ```sh
-notema note search <KEYWORD>
+noema note search <KEYWORD>
 ```
 
 Search both titles and note contents for a keyword.
@@ -121,16 +122,57 @@ Search both titles and note contents for a keyword.
 Search notes by tag:
 
 ```sh
-noema note search --tag "rust"
+noema note search --tag rust
 ```
 
 Search notes by both keyword and tag:
 
 ```sh
-noema note search "sqlite" --tag "rust"
+noema note search sqlite --tag rust
 ```
 
 When both a keyword and a tag are provided, Noema returns notes matching both criteria.
+
+### Advanced search
+
+The top-level search command provides more control than the basic note search and is intended to support more types of results in the future.
+
+Search note titles and contents for a keyword:
+
+```sh
+noema search sqlite
+```
+
+Limit the keyword search to titles or note contents:
+
+```sh
+noema search sqlite --title
+noema search sqlite --content
+```
+
+Search using multiple tags:
+
+```sh
+noema search --tags rust,zettelkasten
+```
+
+By default, notes must have all the provided tags. Use `--match-any` to return notes having at least one of them:
+
+```sh
+noema search --tags rust,zettelkasten --match-any
+```
+
+A keyword and tags can be combined. Noema returns notes matching the keyword and the tag criteria:
+
+```sh
+noema search sqlite --tags rust,zettelkasten
+```
+
+Limit the number of returned results:
+
+```sh
+noema search sqlite --limit 5
+```
 
 ### Info about a note
 
@@ -155,7 +197,7 @@ noema note delete <ID>
 ### Delete tag relation 
 
 ```sh
-noema note delete <ID> --tag "rust"
+noema note delete <ID> --tag rust
 ```
 ## Tags
 
@@ -169,13 +211,13 @@ Lists available tags.
 ### Create a tag
 
 ```sh
-noema tag create "rust"
+noema tag create rust
 ```
 
 Creates a new tag, or : 
 
 ```
-noema tag create "rust" --attach <note-id>
+noema tag create rust --attach <note-id>
 ```
 
 Creates the tag if needed and attaches it to the specified note.
@@ -183,7 +225,7 @@ Creates the tag if needed and attaches it to the specified note.
 ### Attach an existing tag to a note
 
 ```sh
-noema tag attach "rust" <ID>
+noema tag attach rust <ID>
 ```
 
 Associates a tag with an existing note.
@@ -191,7 +233,7 @@ Associates a tag with an existing note.
 ### Delete a tag
 
 ```sh
-noema tag delete "rust"
+noema tag delete rust
 ```
 
 Deletes the specified tag.
@@ -202,6 +244,7 @@ Deletes the specified tag.
 noema --help
 noema note --help
 noema tag --help
+noema search --help
 ```
 
 ## Current State
