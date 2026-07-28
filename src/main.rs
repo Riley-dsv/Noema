@@ -64,8 +64,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             cli::TagCommand::Delete { tag } => commands::delete::delete_tag(&store, &tag)?,
-            cli::TagCommand::Attach { tag, note } => {
-                commands::update::attach_tag_to_note(&store, &note, &tag)?
+            cli::TagCommand::Attach {
+                tag: tag_name,
+                note: note_id,
+            } => commands::update::attach_tag_to_note(&store, &note_id, &tag_name)?,
+            cli::TagCommand::Detach { tag, note } => {
+                commands::delete::detach_tag_from_note(&store, &note, &tag)?;
             }
         },
         cli::Command::Search(value) => {
