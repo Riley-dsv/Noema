@@ -1,6 +1,22 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+#[derive(clap::Args)]
+pub struct SearchArgs {
+    #[arg(required_unless_present = "tags")]
+    pub keyword: Option<String>,
+    #[arg(long, num_args = 1.., value_delimiter = ',')]
+    pub tags: Option<Vec<String>>,
+    #[arg(long, requires = "tags")]
+    pub match_any: bool,
+    #[arg(long, requires = "keyword")]
+    pub title: bool,
+    #[arg(long, requires = "keyword")]
+    pub content: bool,
+    #[arg(short, long)]
+    pub limit: Option<usize>,
+}
+
 #[derive(Subcommand)]
 pub enum NoteCommand {
     Search {
@@ -62,18 +78,7 @@ pub enum Command {
         #[command(subcommand)]
         tag: TagCommand,
     },
-    Search {
-        #[arg(required_unless_present = "tag")]
-        keyword: Option<String>,
-        #[arg(long)]
-        tag: Option<String>,
-        #[arg(long, requires = "keyword")]
-        title: Option<bool>,
-        #[arg(long, requires = "keyword")]
-        content: Option<bool>,
-        #[arg(long)]
-        limit: Option<usize>,
-    },
+    Search(SearchArgs),
 }
 
 #[derive(Parser)]
