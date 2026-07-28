@@ -1,4 +1,6 @@
-use noema::store::sqlite::{SQLStore, note_tags::NoteTagsStore, notes::NoteStore, tags::TagsStore};
+use noema::store::sqlite::{
+    SQLStore, lookup::LookupStore, note_tags::NoteTagsStore, notes::NoteStore, tags::TagsStore,
+};
 
 fn store() -> SQLStore {
     let mut store = SQLStore::open_in_memory().expect("in-memory store should open");
