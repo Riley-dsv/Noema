@@ -2,6 +2,7 @@ use clap::Parser;
 
 use crate::cli::Cli;
 
+use crate::search::search_options::SearchOptions;
 use crate::store::sqlite::SQLStore;
 
 mod cli;
@@ -9,6 +10,7 @@ mod commands;
 mod editor;
 mod error;
 mod path;
+mod search;
 mod store;
 
 fn main() {
@@ -66,6 +68,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 commands::update::attach_tag_to_note(&store, &note, &tag)?
             }
         },
+        cli::Command::Search(value) => {
+            let options = SearchOptions::from(&value);
+            commands::search::search_notes(&store, options)?;
+        }
     }
     Ok(())
 }

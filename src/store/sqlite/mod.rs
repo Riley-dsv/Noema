@@ -1,4 +1,5 @@
 pub mod connection;
+pub mod lookup;
 pub mod migration;
 pub mod note_tags;
 pub mod notes;

@@ -15,6 +15,8 @@ impl SQLStore {
         Ok(store)
     }
 
+    #[allow(dead_code)]
+    // Used in test, not real dead code
     pub fn open_in_memory() -> crate::error::NoemaResult<Self> {
         let connection = Connection::open_in_memory()?;
         connection.execute("PRAGMA foreign_keys = ON", [])?;

@@ -1,99 +1,34 @@
-use std::collections::HashSet;
-
 use crate::{
-    error::{NoemaError, NoemaResult},
-    store::sqlite::{
-        note_tags::{NoteSummary, NoteTagsStore},
-        tags::TagsStore,
-    },
+    error::NoemaResult,
+    search::{note::search_for_notes, search_options::SearchOptions},
+    store::sqlite::{lookup::LookupStore, tags::TagsStore},
 };
 
-fn search_by_tag<Store: TagsStore + NoteTagsStore>(
+pub fn search_notes<Store: LookupStore + TagsStore>(
     store: &Store,
-    tag: &str,
-) -> Result<Vec<NoteSummary>, NoemaError> {
-    let tag_exists = store.tag_exists(tag)?;
-
-    if !tag_exists {
-        println!("No tags with the name: {} found.", tag);
-        return Ok(vec![]);
+    options: SearchOptions<'_>,
+) -> NoemaResult {
+    for note in search_for_notes(store, options)? {
+        println!("{} | {} | {}", note.id, note.title, note.updated_at);
     }
 
-    let tag_id = store.get_id_from_tag_name(tag)?;
-    let notes = store.filter_notes_by_tag(&tag_id)?;
-
-    if notes.is_empty() {
-        println!("No note with tag : {} found.", tag);
-        return Ok(vec![]);
-    }
-
-    Ok(notes)
+    Ok(())
 }
 
-fn search_by_keyword<Store: NoteTagsStore>(
-    store: &Store,
-    keyword: &str,
-) -> Result<Vec<NoteSummary>, NoemaError> {
-    let notes = store.search_content(keyword)?;
-
-    if notes.is_empty() {
-        println!("No note with keyword: {} found", keyword);
-        return Ok(vec![]);
-    }
-
-    Ok(notes)
-}
-
-fn search_by_tag_and_keyword<Store: NoteTagsStore + TagsStore>(
-    store: &Store,
-    keyword: &str,
-    tag: &str,
-) -> Result<Vec<NoteSummary>, NoemaError> {
-    let notes_found_by_keyword = search_by_keyword(store, keyword)?;
-    let notes_found_by_tag = search_by_tag(store, tag)?;
-
-    let note_ids: HashSet<_> = notes_found_by_keyword
-        .iter()
-        .map(|note| note.id.as_str())
-        .collect();
-
-    let intersection: Vec<_> = notes_found_by_tag
-        .into_iter()
-        .filter(|note| note_ids.contains(note.id.as_str()))
-        .collect();
-
-    if intersection.is_empty() {
-        println!(
-            "No notes found sharing the tag {} AND the keyword {}.\nYou should search only by tag or by keyword.",
-            tag, keyword
-        );
-        return Ok(vec![]);
-    }
-
-    Ok(intersection)
-}
-
-pub fn search_in_notes<Store: NoteTagsStore + TagsStore>(
+pub fn search_in_notes<Store: LookupStore + TagsStore>(
     store: &Store,
     keyword: Option<&str>,
     tag: Option<&str>,
 ) -> NoemaResult {
-    let notes: Vec<NoteSummary> = match (tag, keyword) {
-        (Some(tag), Some(keyword)) => search_by_tag_and_keyword(store, keyword, tag)?,
-        (Some(tag), None) => search_by_tag(store, tag)?,
-        (None, Some(keyword)) => search_by_keyword(store, keyword)?,
-        (None, None) => {
-            return Err(NoemaError::SearchFailed(
-                "You provided no tags and no keyword, how did you do this ?".to_string(),
-            ));
-        }
-    };
-
-    if !notes.is_empty() {
-        for note in notes {
-            println!("{} | {} | {}", note.id, note.title, note.updated_at);
-        }
-    }
-
-    Ok(())
+    search_notes(
+        store,
+        SearchOptions {
+            keyword,
+            tags: tag.map(|tag| vec![tag]),
+            match_any: false,
+            search_title: false,
+            search_content: false,
+            limit: None,
+        },
+    )
 }
