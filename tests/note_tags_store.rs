@@ -63,7 +63,7 @@ fn reports_attachment_counts_and_filters_both_sides_of_the_relationship() {
 }
 
 #[test]
-fn searches_titles_and_content_with_partial_case_insensitive_matches() {
+fn searches_titles_and_content_independently_with_partial_case_insensitive_matches() {
     let store = store();
     let title_match = store.insert_note("Rust ownership", "Unrelated").unwrap();
     let content_match = store
@@ -71,12 +71,13 @@ fn searches_titles_and_content_with_partial_case_insensitive_matches() {
         .unwrap();
     store.insert_note("Other", "Nothing to see").unwrap();
 
-    let results = store.search_content("rust").unwrap();
-    let ids: Vec<_> = results.into_iter().map(|note| note.id).collect();
+    let title_results = store.search_title("rust").unwrap();
+    assert_eq!(title_results.len(), 1);
+    assert_eq!(title_results[0].id, title_match);
 
-    assert_eq!(ids.len(), 2);
-    assert!(ids.contains(&title_match));
-    assert!(ids.contains(&content_match));
+    let content_results = store.search_content("rust").unwrap();
+    assert_eq!(content_results.len(), 1);
+    assert_eq!(content_results[0].id, content_match);
     assert!(store.search_content("absent").unwrap().is_empty());
 }
 

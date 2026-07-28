@@ -6,7 +6,7 @@ pub enum NoemaError {
     Database(#[from] rusqlite::Error),
     #[error("IO Error: {0}")]
     Io(#[from] std::io::Error),
-    #[error("Editor Failed with an error")]
+    #[error("Search Failed with an error")]
     SearchFailed(String),
 }
 
