@@ -228,6 +228,12 @@ Creates the tag if needed and attaches it to the specified note.
 noema tag attach rust <ID>
 ```
 
+### Detach an existing tag off a note 
+
+```sh
+noema tag detach rust <ID>
+```
+
 Associates a tag with an existing note.
 
 ### Delete a tag
