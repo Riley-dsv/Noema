@@ -1,0 +1,126 @@
+.\" Manual page for noema.
+.TH NOEMA 1 "July 2026" "Noema 0.0.7-alpha" "User Commands"
+.SH NAME
+noema \- native personal knowledge base and Zettelkasten command-line tool
+.SH SYNOPSIS
+.B noema
+.RI [ OPTIONS ]
+.I COMMAND
+.RI [ ARGS ]
+.SH DESCRIPTION
+.B noema
+is a lightweight, local note-taking application inspired by knowledge
+management and Zettelkasten tools.
+It stores notes and tags in an SQLite database and uses a terminal editor for
+interactive note creation and updates.
+.SH COMMANDS
+.TP
+.B init
+Initialize the Noema database.
+.TP
+.B note
+Create, read, update, delete, list, and search notes.
+See
+.BR noema-note (1).
+.TP
+.B tag
+Create, delete, attach, detach, and list tags.
+See
+.BR noema-tag (1).
+.TP
+.B search
+Perform an advanced search using keywords, multiple tags, field filters, and
+result limits.
+See
+.BR noema-search (1).
+.TP
+.B help
+Display help for Noema or one of its commands.
+.SH OPTIONS
+.TP
+.BI \-\-path " PATH"
+Use
+.I PATH
+as the SQLite database instead of the default database location.
+This is a global option and may be placed before or after a subcommand.
+.TP
+.BR \-h , " " \-\-help
+Display help information.
+.SH ENVIRONMENT
+.TP
+.B EDITOR
+Editor used when creating or updating note content.
+If unset,
+.B vi
+is used.
+.TP
+.B XDG_DATA_DIRS
+On Linux and BSD, used to construct the default database path when set.
+.TP
+.B HOME
+Used to construct the fallback database path on Linux, BSD, and macOS.
+.TP
+.B APPDATA
+Used to construct the default database path on Windows.
+.SH FILES
+.TP
+.I $XDG_DATA_DIRS/noema/noema.db
+Default database location on Linux and BSD when
+.B XDG_DATA_DIRS
+is set.
+.TP
+.I ~/.local/share/noema/noema.db
+Fallback database location on Linux and BSD.
+.TP
+.I ~/Library/Application Support/Noema/noema.db
+Default database location on macOS.
+.TP
+.I %APPDATA%\eNoema\enoema.db
+Default database location on Windows.
+.SH EXAMPLES
+Initialize the default database:
+.PP
+.nf
+.RS
+noema init
+.RE
+.fi
+.PP
+Use a specific database:
+.PP
+.nf
+.RS
+noema --path ./notes.db note list
+.RE
+.fi
+.PP
+Create a note:
+.PP
+.nf
+.RS
+noema note create --title "SQLite migration"
+.RE
+.fi
+.PP
+Perform an advanced search:
+.PP
+.nf
+.RS
+noema search sqlite --tags rust,database
+.RE
+.fi
+.SH EXIT STATUS
+.TP
+.B 0
+The command completed successfully.
+.TP
+.B 1
+Noema encountered an error.
+.SH SEE ALSO
+.BR noema-note (1),
+.BR noema-tag (1),
+.BR noema-search (1)
+.SH AUTHORS
+Riley
+.SH BUGS
+Report bugs through the project issue tracker.

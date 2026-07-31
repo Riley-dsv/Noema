@@ -1,0 +1,137 @@
+.\" Manual page for noema note.
+.TH NOEMA-NOTE 1 "July 2026" "Noema 0.0.7-alpha" "User Commands"
+.SH NAME
+noema-note \- manage Noema notes
+.SH SYNOPSIS
+.B noema note
+.RI [ OPTIONS ]
+.I COMMAND
+.RI [ ARGS ]
+.SH DESCRIPTION
+.B noema note
+provides the basic note-management interface.
+Notes can be created, listed, read, inspected, updated, deleted, and searched
+by one keyword or tag.
+For searches using multiple tags, field filters, or limits, see
+.BR noema-search (1).
+.SH COMMANDS
+.SS Create a note
+.B noema note create
+.BR \-t " " TITLE
+.RB [ \-c " " CONTENT ]
+.PP
+Create a note named
+.IR TITLE .
+If
+.B \-\-content
+is omitted, Noema opens the configured terminal editor.
+.TP
+.BI \-t " TITLE" "\fR, " \-\-title " TITLE"
+Set the required note title.
+.TP
+.BI \-c " CONTENT" "\fR, " \-\-content " CONTENT"
+Provide the initial note content without opening an empty editor buffer.
+.SS List notes
+.B noema note list
+.PP
+List stored notes with their identifiers, titles, and update times.
+.SS Read a note
+.B noema note read
+.I ID
+.PP
+Display the content of the note identified by
+.IR ID .
+.SS Show note information
+.B noema note info
+.I ID
+.PP
+Display the note identifier, title, creation and update times, content size,
+and attached tags.
+.SS Update a note
+.B noema note update
+.I ID
+.RB [ \-t " " TITLE ]
+.PP
+Open the note content in the configured editor.
+When
+.B \-\-title
+is provided, update the title instead.
+.TP
+.BI \-t " TITLE" "\fR, " \-\-title " TITLE"
+Replace the note title.
+.SS Delete a note or detach a tag
+.B noema note delete
+.I ID
+.RB [ \-\-tag " " TAG ]
+.PP
+Delete the note identified by
+.IR ID .
+When
+.B \-\-tag
+is provided, detach only that tag from the note.
+Noema asks for confirmation before performing the operation.
+.TP
+.BI \-\-tag " TAG"
+Detach
+.I TAG
+instead of deleting the note.
+.SS Basic note search
+.B noema note search
+.RI [ KEYWORD ]
+.RB [ \-\-tag " " TAG ]
+.PP
+Search note titles and contents for
+.IR KEYWORD ,
+filter by
+.IR TAG ,
+or combine both criteria using AND.
+At least one criterion is required.
+.TP
+.BI \-\-tag " TAG"
+Return notes attached to
+.IR TAG .
+.SH COMMON OPTIONS
+.TP
+.BI \-\-path " PATH"
+Use a specific SQLite database.
+.TP
+.BR \-h , " " \-\-help
+Display help for a command.
+.SH EXAMPLES
+Create a note with initial content:
+.PP
+.nf
+.RS
+noema note create --title "Tags design" --content "Initial notes"
+.RE
+.fi
+.PP
+Update note content in the configured editor:
+.PP
+.nf
+.RS
+noema note update 018f4c2b
+.RE
+.fi
+.PP
+Search by keyword and tag:
+.PP
+.nf
+.RS
+noema note search sqlite --tag rust
+.RE
+.fi
+.PP
+Detach a tag from a note:
+.PP
+.nf
+.RS
+noema note delete 018f4c2b --tag rust
+.RE
+.fi
+.SH SEE ALSO
+.BR noema (1),
+.BR noema-tag (1),
+.BR noema-search (1)
+.SH AUTHORS
+Riley

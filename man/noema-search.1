@@ -1,0 +1,123 @@
+.\" Manual page for noema search.
+.TH NOEMA-SEARCH 1 "July 2026" "Noema 0.0.7-alpha" "User Commands"
+.SH NAME
+noema-search \- search Noema using keywords, tags, and field filters
+.SH SYNOPSIS
+.B noema search
+.RI [ OPTIONS ]
+.RI [ KEYWORD ]
+.SH DESCRIPTION
+.B noema search
+is the advanced search interface.
+It currently returns notes and is designed to support additional result types
+in the future.
+.PP
+Without a field option,
+.I KEYWORD
+is matched against both note titles and contents.
+When multiple tags are supplied, notes must have every tag by default.
+Keyword and tag criteria are combined using AND.
+.SH ARGUMENTS
+.TP
+.I KEYWORD
+Case-insensitive partial match applied to note titles, contents, or the field
+selected by
+.B \-\-title
+or
+.BR \-\-content .
+This argument is required unless
+.B \-\-tags
+is provided.
+.SH OPTIONS
+.TP
+.BI \-\-tags " TAGS..."
+Search by one or more tags.
+Tags may be comma-separated or supplied as separate values.
+By default, returned notes must have all specified tags.
+.TP
+.B \-\-match-any
+Return notes having at least one specified tag instead of requiring every tag.
+Requires
+.BR \-\-tags .
+.TP
+.B \-\-title
+Search only note titles for
+.IR KEYWORD .
+Requires a keyword.
+.TP
+.B \-\-content
+Search only note contents for
+.IR KEYWORD .
+Requires a keyword.
+.TP
+.BR \-l " " LIMIT ", " \-\-limit " " LIMIT
+Return at most
+.I LIMIT
+results.
+The limit is applied after all keyword and tag criteria.
+.TP
+.BI \-\-path " PATH"
+Use a specific SQLite database.
+.TP
+.BR \-h , " " \-\-help
+Display help information.
+.SH MATCHING RULES
+.TP
+.B Keyword only
+Match either title or content unless a field option restricts the search.
+.TP
+.B Multiple tags
+Require all tags by default, or any tag with
+.BR \-\-match-any .
+.TP
+.B Keyword and tags
+Require both the keyword criteria and the combined tag criteria.
+.TP
+.B Duplicate results
+Return each note only once while preserving result order.
+.SH EXAMPLES
+Search titles and contents:
+.PP
+.nf
+.RS
+noema search sqlite
+.RE
+.fi
+.PP
+Search titles only:
+.PP
+.nf
+.RS
+noema search sqlite --title
+.RE
+.fi
+.PP
+Require both tags:
+.PP
+.nf
+.RS
+noema search --tags rust,zettelkasten
+.RE
+.fi
+.PP
+Match either tag:
+.PP
+.nf
+.RS
+noema search --tags rust,zettelkasten --match-any
+.RE
+.fi
+.PP
+Combine a content search with tags and a result limit:
+.PP
+.nf
+.RS
+noema search sqlite --content --tags rust,database --limit 5
+.RE
+.fi
+.SH SEE ALSO
+.BR noema (1),
+.BR noema-note (1),
+.BR noema-tag (1)
+.SH AUTHORS
+Riley

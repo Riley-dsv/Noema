@@ -1,0 +1,90 @@
+.\" Manual page for noema tag.
+.TH NOEMA-TAG 1 "July 2026" "Noema 0.0.7-alpha" "User Commands"
+.SH NAME
+noema-tag \- manage Noema tags and note-tag relationships
+.SH SYNOPSIS
+.B noema tag
+.RI [ OPTIONS ]
+.I COMMAND
+.RI [ ARGS ]
+.SH DESCRIPTION
+.B noema tag
+creates and removes tags and manages their relationships with notes.
+.SH COMMANDS
+.SS List tags
+.B noema tag list
+.PP
+List tags and the number of notes attached to each tag.
+.SS Create a tag
+.B noema tag create
+.I TAG
+.RB [ \-\-attach " " NOTE ]
+.PP
+Create
+.IR TAG .
+.TP
+.BI \-\-attach " NOTE"
+Attach the newly created tag to the note identified by
+.IR NOTE .
+.SS Attach a tag
+.B noema tag attach
+.I TAG NOTE
+.PP
+Attach the existing
+.I TAG
+to the note identified by
+.IR NOTE .
+.SS Detach a tag
+.B noema tag detach
+.I TAG NOTE
+.PP
+Detach
+.I TAG
+from the note identified by
+.IR NOTE .
+The tag itself is not deleted.
+.SS Delete a tag
+.B noema tag delete
+.I TAG
+.PP
+Delete
+.I TAG
+and its relationships with notes.
+Noema asks for confirmation before deletion.
+.SH COMMON OPTIONS
+.TP
+.BI \-\-path " PATH"
+Use a specific SQLite database.
+.TP
+.BR \-h , " " \-\-help
+Display help for a command.
+.SH EXAMPLES
+Create and attach a tag in one operation:
+.PP
+.nf
+.RS
+noema tag create rust --attach 018f4c2b
+.RE
+.fi
+.PP
+Attach an existing tag:
+.PP
+.nf
+.RS
+noema tag attach rust 018f4c2b
+.RE
+.fi
+.PP
+Detach a tag:
+.PP
+.nf
+.RS
+noema tag detach rust 018f4c2b
+.RE
+.fi
+.SH SEE ALSO
+.BR noema (1),
+.BR noema-note (1),
+.BR noema-search (1)
+.SH AUTHORS
+Riley
