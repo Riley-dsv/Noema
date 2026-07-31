@@ -1,3 +1,5 @@
+#!/bin/sh
+
 cargo build --release
 
 VERSION="v$(grep -m 1 "version" Cargo.toml | cut -d"=" -f2 | cut -d" " -f2 | sed 's/"//g')"
