@@ -1,8 +1,16 @@
 # SQL
 *.sql linguist-language=SQL
+*.sql linguist-detectable=true
 
 # roff / man pages
 *.roff linguist-language=Roff
+*.roff linguist-detectable=true
+
 *.man  linguist-language=Roff
+*.man linguist-detectable=true
+
 *.[1-9] linguist-language=Roff
+*.[1-9] linguist-detectable=true
+
 *.[1-9][a-z] linguist-language=Roff
+*.[1-9][a-z] linguist-detectable=true
