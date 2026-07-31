@@ -22,5 +22,5 @@ fi
 if [ -n "$PRIV" ]; then
  "$PRIV" install -m 644 "$TMP_MAN_DIR"/*.gz "$CMD_MAN_DIR"
 else
-  install -m 644 "$LOCAL_MAN_DIR"/*.gz "$CMD_MAN_DIR"
+  install -m 644 "$TMP_MAN_DIR"/*.gz "$CMD_MAN_DIR"
 fi
