@@ -1,0 +1,8 @@
+# SQL
+*.sql linguist-language=SQL
+
+# roff / man pages
+*.roff linguist-language=Roff
+*.man  linguist-language=Roff
+*.[1-9] linguist-language=Roff
+*.[1-9][a-z] linguist-language=Roff
